@@ -1,27 +1,31 @@
-import { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
+  customAction,
   getSnap,
+  getSnaps,
   sendHello,
   shouldDisplayReconnectButton,
 } from '../utils';
 import {
-  ConnectButton,
-  InstallFlaskButton,
   ReconnectButton,
-  SendHelloButton,
+  Input,
   Card,
+  ProtectButton,
+  Table,
 } from '../components';
+import { ParamsType } from '../../../../types/params.type';
+import Box from '../components/Box';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
-  margin-top: 7.6rem;
-  margin-bottom: 7.6rem;
+  margin-top: 1.6rem;
+  margin-bottom: 1.6rem;
   ${({ theme }) => theme.mediaQueries.small} {
     padding-left: 2.4rem;
     padding-right: 2.4rem;
@@ -33,7 +37,7 @@ const Container = styled.div`
 
 const Heading = styled.h1`
   margin-top: 0;
-  margin-bottom: 2.4rem;
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
@@ -99,8 +103,32 @@ const ErrorMessage = styled.div`
   }
 `;
 
+const StyledGroup = styled.div`
+  border-radius: 1rem;
+  padding: 2;
+`;
+
+const StyledDiv = styled.div`
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+`;
+
 const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [threshold, setThreshold] = useState('');
+  const [passphrase, setPassphrase] = useState('');
+  const [groups, setGroups] = useState<[number, number, string][]>([
+    [1, 1, 'Your personal group share 1'],
+    [1, 1, 'Your personal group share 2'],
+    [3, 5, 'Friends group share for Bob, Charlie, Dave, Frank and Grace'],
+    [2, 6, 'Family group share for mom, dad, brother, sister and wife'],
+  ]);
+  const [newGroup, setNewGroup] = useState<[string, string, string]>([
+    '',
+    '',
+    '',
+  ]);
 
   const handleConnectClick = async () => {
     try {
@@ -126,8 +154,105 @@ const Index = () => {
     }
   };
 
+  const handleCustomAction = async (params: ParamsType) => {
+    try {
+      await customAction(params);
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCustomAction({
+      threshold,
+      passphrase,
+      groups,
+    });
+  };
+
+  const removeIndexOfGroup = (index: number) => {
+    const newState = [...groups];
+    newState.splice(index, 1);
+    setGroups(newState);
+  };
+
   return (
     <Container>
+      <Heading>
+        Welcome to <Span>SpaceDev</Span>
+      </Heading>
+      <CardContainer>
+        {shouldDisplayReconnectButton(state.installedSnap) && (
+          <Card
+            content={{
+              title: 'Reconnect',
+              description:
+                'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
+              button: (
+                <ReconnectButton
+                  onClick={handleConnectClick}
+                  disabled={!state.installedSnap}
+                />
+              ),
+            }}
+            disabled={!state.installedSnap}
+          />
+        )}
+        <Card
+          content={{
+            title: 'Protect your seed phrase',
+            description: (
+              <form onSubmit={onSubmit}>
+                <StyledDiv>
+                  <Input
+                    label="Threshold"
+                    name="threshold"
+                    placeholder="2"
+                    value={threshold}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setThreshold(e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Passphrase"
+                    name="passphrase"
+                    placeholder=""
+                    value={passphrase}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setPassphrase(e.target.value)
+                    }
+                  />
+                </StyledDiv>
+
+                <br />
+                <Table
+                  data={groups}
+                  colums={['Groups', 'Signs', 'Total', '']}
+                  removeAction={removeIndexOfGroup}
+                />
+                <br />
+                <Box>+ Add one more</Box>
+              </form>
+            ),
+            button: (
+              <ProtectButton
+                type="submit"
+                onClick={onSubmit}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+      </CardContainer>
+      {/* 
       <Heading>
         Welcome to <Span>template-snap</Span>
       </Heading>
@@ -211,6 +336,7 @@ const Index = () => {
           </p>
         </Notice>
       </CardContainer>
+      */}
     </Container>
   );
 };

@@ -1,3 +1,4 @@
+import { ParamsType } from '../../../../types/params.type';
 import { defaultSnapOrigin } from '../config';
 import { GetSnapsResponse, Snap } from '../types';
 
@@ -57,8 +58,20 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
 export const sendHello = async () => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: { snapId: defaultSnapOrigin, request: { method: 'hello', params:{datas:"Pelado"} }  },
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'hello', params: { datas: 'Pelado' } },
+    },
   });
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
+export const customAction = async (params: ParamsType) => {
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'custom', params },
+    },
+  });
+};

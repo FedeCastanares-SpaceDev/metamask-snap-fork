@@ -38,6 +38,7 @@ const Button = styled.button`
   align-items: center;
   justify-content: center;
   margin-top: auto;
+  width: 100%;
   ${({ theme }) => theme.mediaQueries.small} {
     width: 100%;
   }
@@ -123,4 +124,8 @@ export const HeaderButtons = ({
       <ButtonText>Connected</ButtonText>
     </ConnectedContainer>
   );
+};
+
+export const ProtectButton = (props: ComponentProps<typeof Button>) => {
+  return <Button {...props}>Protect</Button>;
 };

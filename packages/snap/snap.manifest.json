@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example Snap",
+  "description": "Snap test of Space dev",
+  "proposedName": "Spacedev",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "CwMdrSLoPKRKypLyp9KFf36bFu1LPtiosyzT0JnqZN0=",
+    "shasum": "RcU+RyniLeQjfpsW333NZU48Cr5Uh5wmxcA9sU91ngM=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -22,7 +22,12 @@
     "endowment:rpc": {
       "dapps": true,
       "snaps": false
-    }
+    },
+    "snap_getBip44Entropy": [
+      {
+        "coinType": 60
+      }
+    ]
   },
   "manifestVersion": "0.1"
 }

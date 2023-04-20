@@ -1,7 +1,7 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { panel, text } from '@metamask/snaps-ui';
+import { panel, text, copyable, NodeType } from '@metamask/snaps-ui';
 import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
-import { ParamsType } from '../../../types/params.type';
+import { ParamsType, RecoverParamsType } from '../../../types/params.type';
 
 const slip39 = require('./slip39');
 const assert = require('assert');
@@ -23,33 +23,32 @@ function slip39DecodeHex(arr: any) {
   return str.toString().replace(/,/g, '');
 }
 
-function recover(groupShares, pass) {
-  const recoveredSecret = slip39.recoverSecret(groupShares, pass);
-  console.log('\tMaster secret: ' + slip39DecodeHex(masterSecret));
+function recover(groupShares: any, pass: any, masterSecret: any) {
+  const recoveredSecret: any = slip39.recoverSecret(groupShares, pass);
+  console.log('\tMaster secret: ' + masterSecret);
   console.log('\tRecovered one: ' + slip39DecodeHex(recoveredSecret));
-  assert(slip39DecodeHex(masterSecret) === slip39DecodeHex(recoveredSecret));
+  console.log(`Nmonics: ${slip39DecodeHex(recoveredSecret)}`);
+  assert(masterSecret === slip39DecodeHex(recoveredSecret));
 }
 
-function printShares(shares) {
-  shares.forEach((s, i) => console.log(`\t${i + 1}) ${s}`));
+function printShares(shares: any) {
+  shares.forEach((s: string, i: number) => console.log(`\t${i + 1}) ${s}`));
 }
 
-const groupThreshold = 2;
-const masterSecret = slip39EncodeHex(
-  '6626f01ba2d71341214940a95f6a228c1fdeaae57eee2a331c8c8be9df2e1ff4',
-);
-const passphrase = 'Hola1234';
-
-const groups = [
-  // Alice group-shares. 1 is enough to reconstruct a group-share,
-  // therefore she needs at least two group-shares to reconstruct the master secret.
-  [1, 1, 'Alice personal group share 1'],
-  [1, 1, 'Alice personal group share 2'],
-  // 3 of 5 Friends' shares are required to reconstruct this group-share
-  [3, 5, 'Friends group share for Bob, Charlie, Dave, Frank and Grace'],
-  // 2 of 6 Family's shares are required to reconstruct this group-share
-  [2, 6, 'Family group share for mom, dad, brother, sister and wife'],
-];
+type arraySharesToTextAndCopyType = {
+  value: string;
+  type: NodeType.Copyable | NodeType.Text;
+};
+function arraySharesToTextAndCopy(
+  array: string[],
+): arraySharesToTextAndCopyType[] {
+  const response: arraySharesToTextAndCopyType[] = [];
+  array.forEach((item, index) => {
+    response.push(text(`${index + 1}: `));
+    response.push(copyable(`${item.toString()}`));
+  });
+  return response;
+}
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
@@ -65,6 +64,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
 }) => {
+  const ethNode = await snap.request({
+    method: 'snap_getBip44Entropy',
+    params: {
+      coinType: 60,
+    },
+  });
+
+  const deriveAddress = await getBIP44AddressKeyDeriver(ethNode);
+
+  // Derive the second Dogecoin address, which has index 1.
+  const firstAccount = await deriveAddress(0);
+  const secondAccount = await deriveAddress(1);
+
   switch (request.method) {
     case 'hello':
       return snap.request({
@@ -111,15 +123,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       if (!params) throw new Error('Error con los params');
 
-      // JM code
-      console.log(request);
-      const slip = slip39.fromArray(masterSecret, {
+      const slip = slip39.fromArray(slip39EncodeHex(firstAccount.privateKey), {
         passphrase: params.passphrase,
         threshold: params.threshold,
         groups: params.groups,
         title: 'Slip39 example for 2-level SSSS',
       });
-      console.log(slip);
 
       /*
        * Example of Case 1
@@ -135,20 +144,16 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         `\n* Shares used by Alice alone for restoring the master secret (total of ${requiredGroupShares.length} member-shares):`,
       );
       printShares(requiredGroupShares);
-      recover(requiredGroupShares, passphrase);
+      recover(requiredGroupShares, passphrase, firstAccount.privateKey);
+      const recoveredSecret = slip39.recoverSecret(
+        requiredGroupShares,
+        passphrase,
+      );
 
-      const ethNode = await snap.request({
-        method: 'snap_getBip44Entropy',
-        params: {
-          coinType: 60,
-        },
-      });
-
-      const deriveAddress = await getBIP44AddressKeyDeriver(ethNode);
-
-      // Derive the second Dogecoin address, which has index 1.
-      const secondAccount = await deriveAddress(1);
-      // JM code
+      const requiredGroupSharesList: string[] = requiredGroupShares.map(
+        (s: string, i: number) => `${s}`,
+      );
+      const shares = arraySharesToTextAndCopy([...requiredGroupSharesList]);
 
       return snap.request({
         method: 'snap_dialog',
@@ -156,12 +161,59 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           type: 'confirmation',
           content: panel([
             text(`Hello Fede, from **${origin}**!`),
-            text(`your private key is: ${secondAccount.privateKey}`),
             text('JM 🥸'),
-            text(`threshold: ${params.threshold}`),
-            text(`passphrase: ${params.passphrase}`),
-            text(`groups:`),
-            text(`${params.groups.map((group) => `${group.toString()} || `)}`),
+            text(' -------------------------------------- '),
+            text(
+              `Shares for restoring the master secret (total of ${requiredGroupShares.length.toString()} member-shares):`,
+            ),
+            ...shares,
+          ]),
+        },
+      });
+    case 'recover':
+      let recoverPassphrase: RecoverParamsType['passphrase'] | undefined =
+        undefined;
+      let recoverShares: RecoverParamsType['shares'] | undefined = undefined;
+
+      if (request.params instanceof Array) {
+        throw new Error('No lo esparaba');
+      } else {
+        Object.entries(request.params).forEach(([key, value]) => {
+          if (key === 'shares' && value instanceof Array) {
+            recoverShares = value as RecoverParamsType['shares'];
+          }
+          if (key === 'passphrase' && typeof value === 'string') {
+            recoverPassphrase = value;
+          }
+        });
+      }
+      let recoverParams: RecoverParamsType | undefined;
+      if (recoverPassphrase && recoverShares) {
+        recoverParams = {
+          passphrase: recoverPassphrase,
+          shares: recoverShares,
+        };
+      }
+
+      if (!recoverParams) throw new Error('Error con los params');
+
+      recover(
+        recoverParams.shares,
+        recoverParams.passphrase,
+        firstAccount.privateKey,
+      );
+
+      return snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            text(`Hello, **${origin}**!`),
+            text('This custom confirmation is just for display purposes.'),
+            text(
+              'But you can edit the snap source code to make it do something, if you want to!',
+            ),
+            text(JSON.stringify(recoverParams)),
           ]),
         },
       });

@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Fab } from '@mui/material';
+import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -19,6 +19,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
+    minWidth: 40,
   },
 }));
 
@@ -66,14 +67,13 @@ export function Table({
               <StyledTableCell align="right">{row.sign}</StyledTableCell>
               <StyledTableCell align="right">{row.total}</StyledTableCell>
               <StyledTableCell align="right">
-                <Fab
-                  sx={{ color: 'white' }}
-                  size="small"
+                <IconButton
+                  sx={{ height: 40, width: 40 }}
                   color="secondary"
                   onClick={() => removeAction(index)}
                 >
                   <CloseIcon />
-                </Fab>
+                </IconButton>
               </StyledTableCell>
             </StyledTableRow>
           ))}

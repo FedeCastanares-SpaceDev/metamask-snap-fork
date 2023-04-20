@@ -1,4 +1,4 @@
-export let Buffer = require("buffer").Buffer;
+export let Buffer = require('buffer').Buffer;
 
 /* eslint-disable no-array-constructor */
 let crypto;
@@ -7,7 +7,6 @@ try {
 } catch (err) {
   throw new Error('crypto support must be enabled');
 }
-
 
 // The length of the radix in bits.
 const RADIX_BITS = 10;
@@ -19,8 +18,10 @@ const ID_BITS_LENGTH = 15;
 const ITERATION_EXP_BITS_LENGTH = 5;
 
 // The length of the random identifier and iteration exponent in words.
-const ITERATION_EXP_WORDS_LENGTH =
-  parseInt((ID_BITS_LENGTH + ITERATION_EXP_BITS_LENGTH + RADIX_BITS - 1) / RADIX_BITS, 10);
+const ITERATION_EXP_WORDS_LENGTH = parseInt(
+  (ID_BITS_LENGTH + ITERATION_EXP_BITS_LENGTH + RADIX_BITS - 1) / RADIX_BITS,
+  10,
+);
 
 // The maximum iteration exponent
 const MAX_ITERATION_EXP = Math.pow(2, ITERATION_EXP_BITS_LENGTH);
@@ -46,7 +47,9 @@ const METADATA_WORDS_LENGTH =
 
 // The length of the mnemonic in words without the share value.
 const MNEMONICS_WORDS_LENGTH = parseInt(
-  METADATA_WORDS_LENGTH + (MIN_ENTROPY_BITS + RADIX_BITS - 1) / RADIX_BITS, 10);
+  METADATA_WORDS_LENGTH + (MIN_ENTROPY_BITS + RADIX_BITS - 1) / RADIX_BITS,
+  10,
+);
 
 // The minimum number of iterations to use in PBKDF2.
 const ITERATION_COUNT = 10000;
@@ -69,24 +72,24 @@ function slip39EncodeHex(str) {
     bytes.push(str.charCodeAt(i));
   }
   return bytes;
-};
+}
 
- function slip39DecodeHex (arr) {
+function slip39DecodeHex(arr) {
   let str = [];
   const hex = arr.toString().split(',');
   for (let i = 0; i < hex.length; i++) {
     str.push(String.fromCharCode(hex[i]));
   }
   return str.toString().replace(/,/g, '');
-};
+}
 
-function slip39Generate(arr, m, v = _ => _) {
+function slip39Generate(arr, m, v = (_) => _) {
   let n = m || arr.length;
   for (let i = 0; i < n; i++) {
     arr[i] = v(i);
   }
   return arr;
-};
+}
 
 // Array.prototype.toHexString = function () {
 //   return Array.prototype.map.call(this, function (byte) {
@@ -107,7 +110,7 @@ function decodeBigInt(bytes) {
   let result = BigInt(0);
   for (let i = 0; i < bytes.length; i++) {
     let b = BigInt(bytes[bytes.length - i - 1]);
-    result = result + (b << BIGINT_WORD_BITS * BigInt(i));
+    result = result + (b << (BIGINT_WORD_BITS * BigInt(i)));
   }
   return result;
 }
@@ -130,7 +133,9 @@ function encodeBigInt(number, paddedLength = 0) {
   }
 
   if (paddedLength !== 0 && result.length > paddedLength) {
-    throw new Error(`Error in encoding BigInt value, expected less than ${paddedLength} length value, got ${result.length}`);
+    throw new Error(
+      `Error in encoding BigInt value, expected less than ${paddedLength} length value, got ${result.length}`,
+    );
   }
 
   return result;
@@ -164,16 +169,28 @@ function roundFunction(round, passphrase, exp, salt, secret) {
   const roundedPhrase = [round].concat(passphrase);
   const count = (ITERATION_COUNT << exp) / ROUND_COUNT;
 
-  const key = crypto.pbkdf2Sync(Buffer.from(roundedPhrase), Buffer.from(saltedSecret), count, secret.length, 'sha256');
+  const key = crypto.pbkdf2Sync(
+    Buffer.from(roundedPhrase),
+    Buffer.from(saltedSecret),
+    count,
+    secret.length,
+    'sha256',
+  );
   return Array.prototype.slice.call(key, 0);
 }
 
-function crypt(masterSecret, passphrase, iterationExponent,
+function crypt(
+  masterSecret,
+  passphrase,
+  iterationExponent,
   identifier,
-  encrypt = true) {
+  encrypt = true,
+) {
   // Iteration exponent validated here.
   if (iterationExponent < 0 || iterationExponent > MAX_ITERATION_EXP) {
-    throw Error(`Invalid iteration exponent (${iterationExponent}). Expected between 0 and ${MAX_ITERATION_EXP}`);
+    throw Error(
+      `Invalid iteration exponent (${iterationExponent}). Expected between 0 and ${MAX_ITERATION_EXP}`,
+    );
   }
 
   let IL = masterSecret.slice().slice(0, masterSecret.length / 2);
@@ -183,10 +200,8 @@ function crypt(masterSecret, passphrase, iterationExponent,
 
   const salt = getSalt(identifier);
 
-  let range = slip39Generate(Array(),ROUND_COUNT);
+  let range = slip39Generate(Array(), ROUND_COUNT);
   range = encrypt ? range : range.reverse();
-
-  debugger;
 
   range.forEach((round) => {
     const f = roundFunction(round, pwd, iterationExponent, salt, IR);
@@ -209,15 +224,21 @@ function createDigest(randomData, sharedSecret) {
 
 function splitSecret(threshold, shareCount, sharedSecret) {
   if (threshold <= 0) {
-    throw Error(`The requested threshold (${threshold}) must be a positive integer.`);
+    throw Error(
+      `The requested threshold (${threshold}) must be a positive integer.`,
+    );
   }
 
   if (threshold > shareCount) {
-    throw Error(`The requested threshold (${threshold}) must not exceed the number of shares (${shareCount}).`);
+    throw Error(
+      `The requested threshold (${threshold}) must not exceed the number of shares (${shareCount}).`,
+    );
   }
 
   if (shareCount > MAX_SHARE_COUNT) {
-    throw Error(`The requested number of shares (${shareCount}) must not exceed ${MAX_SHARE_COUNT}.`);
+    throw Error(
+      `The requested number of shares (${shareCount}) must not exceed ${MAX_SHARE_COUNT}.`,
+    );
   }
   //  If the threshold is 1, then the digest of the shared secret is not used.
   if (threshold === 1) {
@@ -232,8 +253,9 @@ function splitSecret(threshold, shareCount, sharedSecret) {
   let baseShares = new Map();
   let shares = [];
   if (randomShareCount) {
-    shares = slip39Generate(Array(),
-      randomShareCount, () => randomBytes(sharedSecret.length));
+    shares = slip39Generate(Array(), randomShareCount, () =>
+      randomBytes(sharedSecret.length),
+    );
     shares.forEach((item, idx) => {
       baseShares.set(idx, item);
     });
@@ -257,14 +279,16 @@ function generateIdentifier() {
   const bits = ID_BITS_LENGTH % 8;
   const identifier = randomBytes(byte);
 
-  identifier[0] = identifier[0] & (1 << bits) - 1;
+  identifier[0] = identifier[0] & ((1 << bits) - 1);
 
   return identifier;
 }
 
 function xor(a, b) {
   if (a.length !== b.length) {
-    throw new Error(`Invalid padding in mnemonic or insufficient length of mnemonics (${a.length} or ${b.length})`);
+    throw new Error(
+      `Invalid padding in mnemonic or insufficient length of mnemonics (${a.length} or ${b.length})`,
+    );
   }
   return slip39Generate(Array(), a.length, (i) => a[i] ^ b[i]);
 }
@@ -280,7 +304,9 @@ function interpolate(shares, x) {
   let sharesValueLengths = new Set(arr);
 
   if (sharesValueLengths.size !== 1) {
-    throw new Error('Invalid set of shares. All share values must have the same length.');
+    throw new Error(
+      'Invalid set of shares. All share values must have the same length.',
+    );
   }
 
   if (xCoord.has(x)) {
@@ -298,7 +324,11 @@ function interpolate(shares, x) {
     logProd = logProd + LOG_TABLE[k ^ x];
   });
 
-  let results = slip39Generate(Array(), sharesValueLengths.values().next().value, () => 0);
+  let results = slip39Generate(
+    Array(),
+    sharesValueLengths.values().next().value,
+    () => 0,
+  );
 
   shares.forEach((v, k) => {
     // The logarithm of the Lagrange basis polynomial evaluated at x.
@@ -316,8 +346,10 @@ function interpolate(shares, x) {
     v.forEach((item, idx) => {
       const shareVal = item;
       const intermediateSum = results[idx];
-      const r = shareVal !== 0 ?
-        EXP_TABLE[(LOG_TABLE[shareVal] + logBasisEval) % 255] : 0;
+      const r =
+        shareVal !== 0
+          ? EXP_TABLE[(LOG_TABLE[shareVal] + logBasisEval) % 255]
+          : 0;
 
       const res = intermediateSum ^ r;
       results[idx] = res;
@@ -328,25 +360,17 @@ function interpolate(shares, x) {
 
 function rs1024Polymod(data) {
   const GEN = [
-    0xE0E040,
-    0x1C1C080,
-    0x3838100,
-    0x7070200,
-    0xE0E0009,
-    0x1C0C2412,
-    0x38086C24,
-    0x3090FC48,
-    0x21B1F890,
-    0x3F3F120
+    0xe0e040, 0x1c1c080, 0x3838100, 0x7070200, 0xe0e0009, 0x1c0c2412,
+    0x38086c24, 0x3090fc48, 0x21b1f890, 0x3f3f120,
   ];
   let chk = 1;
 
   data.forEach((byte) => {
     const b = chk >> 20;
-    chk = (chk & 0xFFFFF) << 10 ^ byte;
+    chk = ((chk & 0xfffff) << 10) ^ byte;
 
     for (let i = 0; i < 10; i++) {
-      let gen = (b >> i & 1) !== 0 ? GEN[i] : 0;
+      let gen = ((b >> i) & 1) !== 0 ? GEN[i] : 0;
       chk = chk ^ gen;
     }
   });
@@ -355,12 +379,15 @@ function rs1024Polymod(data) {
 }
 
 function rs1024CreateChecksum(data) {
-  const values =slip39EncodeHex(SALT_STRING)
+  const values = slip39EncodeHex(SALT_STRING)
     .concat(data)
     .concat(slip39Generate(Array(), CHECKSUM_WORDS_LENGTH, () => 0));
   const polymod = rs1024Polymod(values) ^ 1;
-  const result =
-    slip39Generate(Array(), CHECKSUM_WORDS_LENGTH, (i) => polymod >> 10 * i & 1023).reverse();
+  const result = slip39Generate(
+    Array(),
+    CHECKSUM_WORDS_LENGTH,
+    (i) => (polymod >> (10 * i)) & 1023,
+  ).reverse();
 
   return result;
 }
@@ -387,8 +414,9 @@ function intFromIndices(indices) {
 //
 function intToIndices(value, length, bits) {
   const mask = BigInt((1 << bits) - 1);
-  const result =
-    slip39Generate(Array(), length, (i) => parseInt(value >> BigInt(i) * BigInt(bits) & mask, 10));
+  const result = slip39Generate(Array(), length, (i) =>
+    parseInt((value >> (BigInt(i) * BigInt(bits))) & mask, 10),
+  );
   return result.reverse();
 }
 
@@ -401,7 +429,9 @@ function mnemonicFromIndices(indices) {
 
 function mnemonicToIndices(mnemonic) {
   if (typeof mnemonic !== 'string') {
-    throw new Error(`Mnemonic expected to be typeof string with white space separated words. Instead found typeof ${typeof mnemonic}.`);
+    throw new Error(
+      `Mnemonic expected to be typeof string with white space separated words. Instead found typeof ${typeof mnemonic}.`,
+    );
   }
 
   const words = mnemonic.toLowerCase().split(' ');
@@ -426,8 +456,7 @@ function recoverSecret(threshold, shares) {
   const digest = digestShare.slice(0, DIGEST_LENGTH);
   const randomPart = digestShare.slice(DIGEST_LENGTH);
 
-  const recoveredDigest = createDigest(
-    randomPart, sharedSecret);
+  const recoveredDigest = createDigest(randomPart, sharedSecret);
   if (!listsAreEqual(digest, recoveredDigest)) {
     throw new Error('Invalid digest of the shared secret.');
   }
@@ -451,11 +480,15 @@ function combineMnemonics(mnemonics, passphrase = '') {
   const groups = decoded.groups;
 
   if (groups.size < groupThreshold) {
-    throw new Error(`Insufficient number of mnemonic groups (${groups.size}). The required number of groups is ${groupThreshold}.`);
+    throw new Error(
+      `Insufficient number of mnemonic groups (${groups.size}). The required number of groups is ${groupThreshold}.`,
+    );
   }
 
   if (groups.size !== groupThreshold) {
-    throw new Error(`Wrong number of mnemonic groups. Expected ${groupThreshold} groups, but ${groups.size} were provided.`);
+    throw new Error(
+      `Wrong number of mnemonic groups. Expected ${groupThreshold} groups, but ${groups.size} were provided.`,
+    );
   }
 
   let allShares = new Map();
@@ -468,9 +501,13 @@ function combineMnemonics(mnemonics, passphrase = '') {
         iterationExponent,
         groupIndex,
         groupThreshold,
-        groupCount
+        groupCount,
       );
-      throw new Error(`Wrong number of mnemonics. Expected ${threshold} mnemonics starting with "${mnemonicFromIndices(prefix)}", \n but ${shares.size} were provided.`);
+      throw new Error(
+        `Wrong number of mnemonics. Expected ${threshold} mnemonics starting with "${mnemonicFromIndices(
+          prefix,
+        )}", \n but ${shares.size} were provided.`,
+      );
     }
 
     const recovered = recoverSecret(threshold, shares);
@@ -507,25 +544,35 @@ function decodeMnemonics(mnemonics) {
     const share = decoded.share;
 
     const group = !groups.has(groupIndex) ? new Map() : groups.get(groupIndex);
-    const member = !group.has(memberThreshold) ? new Map() : group.get(memberThreshold);
+    const member = !group.has(memberThreshold)
+      ? new Map()
+      : group.get(memberThreshold);
     member.set(memberIndex, share);
     group.set(memberThreshold, member);
     if (group.size !== 1) {
-      throw new Error('Invalid set of mnemonics. All mnemonics in a group must have the same member threshold.');
+      throw new Error(
+        'Invalid set of mnemonics. All mnemonics in a group must have the same member threshold.',
+      );
     }
     groups.set(groupIndex, group);
   });
 
   if (identifiers.size !== 1 || iterationExponents.size !== 1) {
-    throw new Error(`Invalid set of mnemonics. All mnemonics must begin with the same ${ITERATION_EXP_WORDS_LENGTH} words.`);
+    throw new Error(
+      `Invalid set of mnemonics. All mnemonics must begin with the same ${ITERATION_EXP_WORDS_LENGTH} words.`,
+    );
   }
 
   if (groupThresholds.size !== 1) {
-    throw new Error('Invalid set of mnemonics. All mnemonics must have the same group threshold.');
+    throw new Error(
+      'Invalid set of mnemonics. All mnemonics must have the same group threshold.',
+    );
   }
 
   if (groupCounts.size !== 1) {
-    throw new Error('Invalid set of mnemonics. All mnemonics must have the same group count.');
+    throw new Error(
+      'Invalid set of mnemonics. All mnemonics must have the same group count.',
+    );
   }
 
   return {
@@ -533,7 +580,7 @@ function decodeMnemonics(mnemonics) {
     iterationExponent: iterationExponents.values().next().value,
     groupThreshold: groupThresholds.values().next().value,
     groupCount: groupCounts.values().next().value,
-    groups: groups
+    groups: groups,
   };
 }
 
@@ -544,10 +591,12 @@ function decodeMnemonic(mnemonic) {
   const data = mnemonicToIndices(mnemonic);
 
   if (data.length < MNEMONICS_WORDS_LENGTH) {
-    throw new Error(`Invalid mnemonic length. The length of each mnemonic must be at least ${MNEMONICS_WORDS_LENGTH} words.`);
+    throw new Error(
+      `Invalid mnemonic length. The length of each mnemonic must be at least ${MNEMONICS_WORDS_LENGTH} words.`,
+    );
   }
 
-  const paddingLen = RADIX_BITS * (data.length - METADATA_WORDS_LENGTH) % 16;
+  const paddingLen = (RADIX_BITS * (data.length - METADATA_WORDS_LENGTH)) % 16;
   if (paddingLen > 8) {
     throw new Error('Invalid mnemonic length.');
   }
@@ -556,12 +605,15 @@ function decodeMnemonic(mnemonic) {
     throw new Error('Invalid mnemonic checksum');
   }
 
-  const idExpInt =
-    parseInt(intFromIndices(data.slice(0, ITERATION_EXP_WORDS_LENGTH)), 10);
+  const idExpInt = parseInt(
+    intFromIndices(data.slice(0, ITERATION_EXP_WORDS_LENGTH)),
+    10,
+  );
   const identifier = idExpInt >> ITERATION_EXP_BITS_LENGTH;
-  const iterationExponent = idExpInt & (1 << ITERATION_EXP_BITS_LENGTH) - 1;
+  const iterationExponent = idExpInt & ((1 << ITERATION_EXP_BITS_LENGTH) - 1);
   const tmp = intFromIndices(
-    data.slice(ITERATION_EXP_WORDS_LENGTH, ITERATION_EXP_WORDS_LENGTH + 2));
+    data.slice(ITERATION_EXP_WORDS_LENGTH, ITERATION_EXP_WORDS_LENGTH + 2),
+  );
 
   const indices = intToIndices(tmp, 5, 4);
 
@@ -572,16 +624,22 @@ function decodeMnemonic(mnemonic) {
   const memberThreshold = indices[4];
 
   const valueData = data.slice(
-    ITERATION_EXP_WORDS_LENGTH + 2, data.length - CHECKSUM_WORDS_LENGTH);
+    ITERATION_EXP_WORDS_LENGTH + 2,
+    data.length - CHECKSUM_WORDS_LENGTH,
+  );
 
   if (groupCount < groupThreshold) {
-    throw new Error(`Invalid mnemonic: ${mnemonic}.\n Group threshold (${groupThreshold}) cannot be greater than group count (${groupCount}).`);
+    throw new Error(
+      `Invalid mnemonic: ${mnemonic}.\n Group threshold (${groupThreshold}) cannot be greater than group count (${groupCount}).`,
+    );
   }
 
   const valueInt = intFromIndices(valueData);
 
   try {
-    const valueByteCount = bitsToBytes(RADIX_BITS * valueData.length - paddingLen);
+    const valueByteCount = bitsToBytes(
+      RADIX_BITS * valueData.length - paddingLen,
+    );
     const share = encodeBigInt(valueInt, valueByteCount);
 
     return {
@@ -592,7 +650,7 @@ function decodeMnemonic(mnemonic) {
       groupCount: groupCount + 1,
       memberIndex: memberIndex,
       memberThreshold: memberThreshold + 1,
-      share: share
+      share: share,
     };
   } catch (e) {
     throw new Error(`Invalid mnemonic padding (${e})`);
@@ -609,14 +667,20 @@ function validateMnemonic(mnemonic) {
 }
 
 function groupPrefix(
-  identifier, iterationExponent, groupIndex, groupThreshold, groupCount) {
+  identifier,
+  iterationExponent,
+  groupIndex,
+  groupThreshold,
+  groupCount,
+) {
   const idExpInt = BigInt(
-    (identifier << ITERATION_EXP_BITS_LENGTH) + iterationExponent);
+    (identifier << ITERATION_EXP_BITS_LENGTH) + iterationExponent,
+  );
 
   const indc = intToIndices(idExpInt, ITERATION_EXP_WORDS_LENGTH, RADIX_BITS);
 
   const indc2 =
-    (groupIndex << 6) + (groupThreshold - 1 << 2) + (groupCount - 1 >> 2);
+    (groupIndex << 6) + ((groupThreshold - 1) << 2) + ((groupCount - 1) >> 2);
 
   indc.push(indc2);
   return indc;
@@ -644,7 +708,7 @@ function encodeMnemonic(
   groupCount,
   memberIndex,
   memberThreshold,
-  value
+  value,
 ) {
   // Convert the share value from bytes to wordlist indices.
   const valueWordCount = bitsToWords(value.length * 8);
@@ -653,12 +717,16 @@ function encodeMnemonic(
   let newIdentifier = parseInt(decodeBigInt(identifier), 10);
 
   const gp = groupPrefix(
-    newIdentifier, iterationExponent, groupIndex, groupThreshold, groupCount);
+    newIdentifier,
+    iterationExponent,
+    groupIndex,
+    groupThreshold,
+    groupCount,
+  );
   const tp = intToIndices(valueInt, valueWordCount, RADIX_BITS);
 
-  const calc = ((groupCount - 1 & 3) << 8) +
-    (memberIndex << 4) +
-    (memberThreshold - 1);
+  const calc =
+    (((groupCount - 1) & 3) << 8) + (memberIndex << 4) + (memberThreshold - 1);
 
   gp.push(calc);
   const shareData = gp.concat(tp);
@@ -684,519 +752,39 @@ function encodeMnemonic(
 //   }
 // ```
 const EXP_TABLE = [
-  1,
-  3,
-  5,
-  15,
-  17,
-  51,
-  85,
-  255,
-  26,
-  46,
-  114,
-  150,
-  161,
-  248,
-  19,
-  53,
-  95,
-  225,
-  56,
-  72,
-  216,
-  115,
-  149,
-  164,
-  247,
-  2,
-  6,
-  10,
-  30,
-  34,
-  102,
-  170,
-  229,
-  52,
-  92,
-  228,
-  55,
-  89,
-  235,
-  38,
-  106,
-  190,
-  217,
-  112,
-  144,
-  171,
-  230,
-  49,
-  83,
-  245,
-  4,
-  12,
-  20,
-  60,
-  68,
-  204,
-  79,
-  209,
-  104,
-  184,
-  211,
-  110,
-  178,
-  205,
-  76,
-  212,
-  103,
-  169,
-  224,
-  59,
-  77,
-  215,
-  98,
-  166,
-  241,
-  8,
-  24,
-  40,
-  120,
-  136,
-  131,
-  158,
-  185,
-  208,
-  107,
-  189,
-  220,
-  127,
-  129,
-  152,
-  179,
-  206,
-  73,
-  219,
-  118,
-  154,
-  181,
-  196,
-  87,
-  249,
-  16,
-  48,
-  80,
-  240,
-  11,
-  29,
-  39,
-  105,
-  187,
-  214,
-  97,
-  163,
-  254,
-  25,
-  43,
-  125,
-  135,
-  146,
-  173,
-  236,
-  47,
-  113,
-  147,
-  174,
-  233,
-  32,
-  96,
-  160,
-  251,
-  22,
-  58,
-  78,
-  210,
-  109,
-  183,
-  194,
-  93,
-  231,
-  50,
-  86,
-  250,
-  21,
-  63,
-  65,
-  195,
-  94,
-  226,
-  61,
-  71,
-  201,
-  64,
-  192,
-  91,
-  237,
-  44,
-  116,
-  156,
-  191,
-  218,
-  117,
-  159,
-  186,
-  213,
-  100,
-  172,
-  239,
-  42,
-  126,
-  130,
-  157,
-  188,
-  223,
-  122,
-  142,
-  137,
-  128,
-  155,
-  182,
-  193,
-  88,
-  232,
-  35,
-  101,
-  175,
-  234,
-  37,
-  111,
-  177,
-  200,
-  67,
-  197,
-  84,
-  252,
-  31,
-  33,
-  99,
-  165,
-  244,
-  7,
-  9,
-  27,
-  45,
-  119,
-  153,
-  176,
-  203,
-  70,
-  202,
-  69,
-  207,
-  74,
-  222,
-  121,
-  139,
-  134,
-  145,
-  168,
-  227,
-  62,
-  66,
-  198,
-  81,
-  243,
-  14,
-  18,
-  54,
-  90,
-  238,
-  41,
-  123,
-  141,
-  140,
-  143,
-  138,
-  133,
-  148,
-  167,
-  242,
-  13,
-  23,
-  57,
-  75,
-  221,
-  124,
-  132,
-  151,
-  162,
-  253,
-  28,
-  36,
-  108,
-  180,
-  199,
-  82,
-  246
+  1, 3, 5, 15, 17, 51, 85, 255, 26, 46, 114, 150, 161, 248, 19, 53, 95, 225, 56,
+  72, 216, 115, 149, 164, 247, 2, 6, 10, 30, 34, 102, 170, 229, 52, 92, 228, 55,
+  89, 235, 38, 106, 190, 217, 112, 144, 171, 230, 49, 83, 245, 4, 12, 20, 60,
+  68, 204, 79, 209, 104, 184, 211, 110, 178, 205, 76, 212, 103, 169, 224, 59,
+  77, 215, 98, 166, 241, 8, 24, 40, 120, 136, 131, 158, 185, 208, 107, 189, 220,
+  127, 129, 152, 179, 206, 73, 219, 118, 154, 181, 196, 87, 249, 16, 48, 80,
+  240, 11, 29, 39, 105, 187, 214, 97, 163, 254, 25, 43, 125, 135, 146, 173, 236,
+  47, 113, 147, 174, 233, 32, 96, 160, 251, 22, 58, 78, 210, 109, 183, 194, 93,
+  231, 50, 86, 250, 21, 63, 65, 195, 94, 226, 61, 71, 201, 64, 192, 91, 237, 44,
+  116, 156, 191, 218, 117, 159, 186, 213, 100, 172, 239, 42, 126, 130, 157, 188,
+  223, 122, 142, 137, 128, 155, 182, 193, 88, 232, 35, 101, 175, 234, 37, 111,
+  177, 200, 67, 197, 84, 252, 31, 33, 99, 165, 244, 7, 9, 27, 45, 119, 153, 176,
+  203, 70, 202, 69, 207, 74, 222, 121, 139, 134, 145, 168, 227, 62, 66, 198, 81,
+  243, 14, 18, 54, 90, 238, 41, 123, 141, 140, 143, 138, 133, 148, 167, 242, 13,
+  23, 57, 75, 221, 124, 132, 151, 162, 253, 28, 36, 108, 180, 199, 82, 246,
 ];
 const LOG_TABLE = [
-  0,
-  0,
-  25,
-  1,
-  50,
-  2,
-  26,
-  198,
-  75,
-  199,
-  27,
-  104,
-  51,
-  238,
-  223,
-  3,
-  100,
-  4,
-  224,
-  14,
-  52,
-  141,
-  129,
-  239,
-  76,
-  113,
-  8,
-  200,
-  248,
-  105,
-  28,
-  193,
-  125,
-  194,
-  29,
-  181,
-  249,
-  185,
-  39,
-  106,
-  77,
-  228,
-  166,
-  114,
-  154,
-  201,
-  9,
-  120,
-  101,
-  47,
-  138,
-  5,
-  33,
-  15,
-  225,
-  36,
-  18,
-  240,
-  130,
-  69,
-  53,
-  147,
-  218,
-  142,
-  150,
-  143,
-  219,
-  189,
-  54,
-  208,
-  206,
-  148,
-  19,
-  92,
-  210,
-  241,
-  64,
-  70,
-  131,
-  56,
-  102,
-  221,
-  253,
-  48,
-  191,
-  6,
-  139,
-  98,
-  179,
-  37,
-  226,
-  152,
-  34,
-  136,
-  145,
-  16,
-  126,
-  110,
-  72,
-  195,
-  163,
-  182,
-  30,
-  66,
-  58,
-  107,
-  40,
-  84,
-  250,
-  133,
-  61,
-  186,
-  43,
-  121,
-  10,
-  21,
-  155,
-  159,
-  94,
-  202,
-  78,
-  212,
-  172,
-  229,
-  243,
-  115,
-  167,
-  87,
-  175,
-  88,
-  168,
-  80,
-  244,
-  234,
-  214,
-  116,
-  79,
-  174,
-  233,
-  213,
-  231,
-  230,
-  173,
-  232,
-  44,
-  215,
-  117,
-  122,
-  235,
-  22,
-  11,
-  245,
-  89,
-  203,
-  95,
-  176,
-  156,
-  169,
-  81,
-  160,
-  127,
-  12,
-  246,
-  111,
-  23,
-  196,
-  73,
-  236,
-  216,
-  67,
-  31,
-  45,
-  164,
-  118,
-  123,
-  183,
-  204,
-  187,
-  62,
-  90,
-  251,
-  96,
-  177,
-  134,
-  59,
-  82,
-  161,
-  108,
-  170,
-  85,
-  41,
-  157,
-  151,
-  178,
-  135,
-  144,
-  97,
-  190,
-  220,
-  252,
-  188,
-  149,
-  207,
-  205,
-  55,
-  63,
-  91,
-  209,
-  83,
-  57,
-  132,
-  60,
-  65,
-  162,
-  109,
-  71,
-  20,
-  42,
-  158,
-  93,
-  86,
-  242,
-  211,
-  171,
-  68,
-  17,
-  146,
-  217,
-  35,
-  32,
-  46,
-  137,
-  180,
-  124,
-  184,
-  38,
-  119,
-  153,
-  227,
-  165,
-  103,
-  74,
-  237,
-  222,
-  197,
-  49,
-  254,
-  24,
-  13,
-  99,
-  140,
-  128,
-  192,
-  247,
-  112,
-  7
+  0, 0, 25, 1, 50, 2, 26, 198, 75, 199, 27, 104, 51, 238, 223, 3, 100, 4, 224,
+  14, 52, 141, 129, 239, 76, 113, 8, 200, 248, 105, 28, 193, 125, 194, 29, 181,
+  249, 185, 39, 106, 77, 228, 166, 114, 154, 201, 9, 120, 101, 47, 138, 5, 33,
+  15, 225, 36, 18, 240, 130, 69, 53, 147, 218, 142, 150, 143, 219, 189, 54, 208,
+  206, 148, 19, 92, 210, 241, 64, 70, 131, 56, 102, 221, 253, 48, 191, 6, 139,
+  98, 179, 37, 226, 152, 34, 136, 145, 16, 126, 110, 72, 195, 163, 182, 30, 66,
+  58, 107, 40, 84, 250, 133, 61, 186, 43, 121, 10, 21, 155, 159, 94, 202, 78,
+  212, 172, 229, 243, 115, 167, 87, 175, 88, 168, 80, 244, 234, 214, 116, 79,
+  174, 233, 213, 231, 230, 173, 232, 44, 215, 117, 122, 235, 22, 11, 245, 89,
+  203, 95, 176, 156, 169, 81, 160, 127, 12, 246, 111, 23, 196, 73, 236, 216, 67,
+  31, 45, 164, 118, 123, 183, 204, 187, 62, 90, 251, 96, 177, 134, 59, 82, 161,
+  108, 170, 85, 41, 157, 151, 178, 135, 144, 97, 190, 220, 252, 188, 149, 207,
+  205, 55, 63, 91, 209, 83, 57, 132, 60, 65, 162, 109, 71, 20, 42, 158, 93, 86,
+  242, 211, 171, 68, 17, 146, 217, 35, 32, 46, 137, 180, 124, 184, 38, 119, 153,
+  227, 165, 103, 74, 237, 222, 197, 49, 254, 24, 13, 99, 140, 128, 192, 247,
+  112, 7,
 ];
 
 //
@@ -2226,7 +1814,7 @@ const WORD_LIST = [
   'yelp',
   'yield',
   'yoga',
-  'zero'
+  'zero',
 ];
 
 const WORD_LIST_MAP = WORD_LIST.reduce((obj, val, idx) => {
@@ -2242,6 +1830,6 @@ exports = module.exports = {
   splitSecret,
   combineMnemonics,
   crypt,
-  bitsToBytes, 
+  bitsToBytes,
   slip39Generate,
 };

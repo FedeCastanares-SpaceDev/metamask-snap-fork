@@ -127,5 +127,39 @@ export const HeaderButtons = ({
 };
 
 export const ProtectButton = (props: ComponentProps<typeof Button>) => {
-  return <Button {...props}>Protect</Button>;
+  return (
+    <Button
+      style={
+        props.disabled
+          ? {
+              backgroundColor: '#f3f3f3',
+              color: '#afafaf',
+              borderColor: '#f3f3f3',
+            }
+          : {}
+      }
+      {...props}
+    >
+      Protect me
+    </Button>
+  );
+};
+
+export const ButtonBase = (props: ComponentProps<typeof Button>) => {
+  return (
+    <Button
+      style={
+        props.disabled
+          ? {
+              backgroundColor: '#f3f3f3',
+              color: '#afafaf',
+              borderColor: '#f3f3f3',
+            }
+          : {}
+      }
+      {...props}
+    >
+      {props.children}
+    </Button>
+  );
 };

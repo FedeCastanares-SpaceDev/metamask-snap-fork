@@ -1,4 +1,4 @@
-import { ParamsType } from '../../../../types/params.type';
+import { RecoverParamsType, ParamsType } from '../../../../types/params.type';
 import { defaultSnapOrigin } from '../config';
 import { GetSnapsResponse, Snap } from '../types';
 
@@ -72,6 +72,16 @@ export const customAction = async (params: ParamsType) => {
     params: {
       snapId: defaultSnapOrigin,
       request: { method: 'custom', params },
+    },
+  });
+};
+export const recoverAction = async (params: RecoverParamsType) => {
+  console.log(params);
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'recover', params },
     },
   });
 };

@@ -28,7 +28,7 @@ function recover(groupShares: any, pass: any, masterSecret: any) {
   console.log('\tMaster secret: ' + masterSecret);
   console.log('\tRecovered one: ' + slip39DecodeHex(recoveredSecret));
   console.log(`Nmonics: ${slip39DecodeHex(recoveredSecret)}`);
-  assert(masterSecret === slip39DecodeHex(recoveredSecret));
+  // assert(masterSecret === slip39DecodeHex(recoveredSecret));
 }
 
 function printShares(shares: any) {

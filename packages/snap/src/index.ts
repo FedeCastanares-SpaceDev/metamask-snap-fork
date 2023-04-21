@@ -4,7 +4,24 @@ import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 import { ParamsType, RecoverParamsType } from '../../../types/params.type';
 
 const slip39 = require('./slip39');
-const assert = require('assert');
+
+function generateSecretKeys(slip: any, groups: [number, number, string][]) {
+  let secret;
+  let numberOfParticipants;
+  let secretCodeList: string[][] = [];
+  for (let i = 0; i < groups.length; i++) {
+    numberOfParticipants = groups[i][1];
+    secretCodeList.push([]);
+    secretCodeList[i].push(
+      `${groups[i][2]} (Participantes: ${numberOfParticipants})`,
+    );
+    for (let j = 0; j < numberOfParticipants; j++) {
+      secret = slip.fromPath(`r/${i}/${j}`).mnemonics;
+      secretCodeList[i].push(secret[0]);
+    }
+  }
+  return secretCodeList;
+}
 
 function slip39EncodeHex(str: any) {
   let bytes = [];
@@ -25,15 +42,8 @@ function slip39DecodeHex(arr: any) {
 
 function recover(groupShares: any, pass: any, masterSecret: any) {
   const recoveredSecret: any = slip39.recoverSecret(groupShares, pass);
-  console.log('\tMaster secret: ' + masterSecret);
   const recovered = slip39DecodeHex(recoveredSecret);
-  console.log('\tRecovered one: ' + recovered);
   return recovered;
-  // assert(masterSecret === slip39DecodeHex(recoveredSecret));
-}
-
-function printShares(shares: any) {
-  shares.forEach((s: string, i: number) => console.log(`\t${i + 1}) ${s}`));
 }
 
 type arraySharesToTextAndCopyType = {
@@ -41,13 +51,27 @@ type arraySharesToTextAndCopyType = {
   type: NodeType.Copyable | NodeType.Text;
 };
 function arraySharesToTextAndCopy(
-  array: string[],
+  array: string[][],
+): arraySharesToTextAndCopyType[][] {
+  const response: arraySharesToTextAndCopyType[][] = [];
+  array.forEach((share, index) =>
+    share.forEach((code, i) => {
+      if (i === 0) {
+        response.push([text(code)]);
+      } else {
+        response[index].push(text(`${i} ) `));
+        response[index].push(copyable(code));
+      }
+    }),
+  );
+  return response;
+}
+
+function sharesToList(
+  array: arraySharesToTextAndCopyType[][],
 ): arraySharesToTextAndCopyType[] {
   const response: arraySharesToTextAndCopyType[] = [];
-  array.forEach((item, index) => {
-    response.push(text(`${index + 1}: `));
-    response.push(copyable(`${item.toString()}`));
-  });
+  array.forEach((group) => group.forEach((item) => response.push(item)));
   return response;
 }
 
@@ -130,39 +154,20 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         title: 'Slip39 example for 2-level SSSS',
       });
 
-      /*
-       * Example of Case 1
-       */
-      // The 1st, and only, member-share (member 0) of the 1st group-share (group 0) + the 1st, and only, member-share (member 0) of the 2nd group-share (group 1)
-      let aliceBothGroupShares = slip
-        .fromPath('r/0/0')
-        .mnemonics.concat(slip.fromPath('r/1/0').mnemonics);
+      const secretCodeList = generateSecretKeys(slip, params.groups);
 
-      let requiredGroupShares = aliceBothGroupShares;
+      const shares = arraySharesToTextAndCopy(secretCodeList);
 
-      console.log(
-        `\n* Shares used by Alice alone for restoring the master secret (total of ${requiredGroupShares.length} member-shares):`,
-      );
-      printShares(requiredGroupShares);
-      recover(requiredGroupShares, passphrase, firstAccount.privateKey);
-
-      const requiredGroupSharesList: string[] = requiredGroupShares.map(
-        (s: string, i: number) => `${s}`,
-      );
-      const shares = arraySharesToTextAndCopy([...requiredGroupSharesList]);
+      const sharesList = sharesToList(shares);
 
       return snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
           content: panel([
-            text(`Hello Fede, from **${origin}**!`),
-            text('JM 🥸'),
+            text(`Hi your share list is:`),
             text(' -------------------------------------- '),
-            text(
-              `Shares for restoring the master secret (total of ${requiredGroupShares.length.toString()} member-shares):`,
-            ),
-            ...shares,
+            ...sharesList,
           ]),
         },
       });
@@ -205,9 +210,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           type: 'confirmation',
           content: panel([
             text(`Hello, from **${origin}**!`),
-            text('Your keys was recovered'),
-            text(`Master:`),
-            copyable(firstAccount.privateKey ?? ''),
+            text('Your key was recovered'),
             text('Recovered:'),
             copyable(recovered),
           ]),

@@ -4,7 +4,7 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import { customAction, recoverAction } from '../utils';
 import { Input, Card, ProtectButton, Table, ButtonBase } from '../components';
 import { ParamsType } from '../../../../types/params.type';
-import { IconButton } from '@mui/material';
+import { Alert, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 
@@ -67,7 +67,7 @@ const ErrorMessage = styled.div`
 const StyledDiv = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
 `;
@@ -88,28 +88,40 @@ const Index = () => {
   const [shares, setShares] = useState<string[]>(['']);
   const [passphraseForRecover, setPassphraseForRecover] = useState('');
 
+  const [error, setError] = useState('');
+
   const handleCustomAction = async (params: ParamsType) => {
     try {
       await customAction(params);
     } catch (e) {
-      console.error(e);
+      showError(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
     }
   };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleCustomAction({
-      threshold,
-      passphrase,
-      groups,
-    });
+    try {
+      handleCustomAction({
+        threshold,
+        passphrase,
+        groups,
+      });
+    } catch (error) {
+      dispatch({ type: MetamaskActions.SetError, payload: error });
+      showError(error);
+    }
   };
 
   const removeIndexOfGroup = (index: number) => {
     const newState = [...groups];
     newState.splice(index, 1);
     setGroups(newState);
+  };
+
+  const showError = (error: any) => {
+    setError(error.message);
+    setTimeout(() => setError(''), 5000);
   };
 
   return (
@@ -160,7 +172,7 @@ const Index = () => {
                           name="signs"
                           placeholder="3"
                           value={newGroup[0]}
-                          style={{ width: '5rem' }}
+                          style={{ width: '2rem' }}
                           onChange={(
                             e: React.ChangeEvent<HTMLInputElement>,
                           ) => {
@@ -174,7 +186,7 @@ const Index = () => {
                           name="total"
                           placeholder="5"
                           value={newGroup[1]}
-                          style={{ width: '5rem' }}
+                          style={{ width: '2rem' }}
                           onChange={(
                             e: React.ChangeEvent<HTMLInputElement>,
                           ) => {
@@ -264,7 +276,7 @@ const Index = () => {
                   </StyledDiv>
 
                   {shares.map((share, index) => (
-                    <>
+                    <div key={index}>
                       <Input
                         type="textarea"
                         label={`Share ${index + 1}`}
@@ -280,7 +292,7 @@ const Index = () => {
                         }}
                       />
                       <br />
-                    </>
+                    </div>
                   ))}
 
                   <ButtonBase
@@ -308,6 +320,16 @@ const Index = () => {
           />
         </CardContainer>
       </form>
+      {error !== '' && (
+        <Alert
+          severity="error"
+          color="error"
+          variant="filled"
+          sx={{ fontSize: 24, position: 'absolute', top: '10vh' }}
+        >
+          {error}
+        </Alert>
+      )}
     </Container>
   );
 };

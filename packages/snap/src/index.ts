@@ -26,8 +26,9 @@ function slip39DecodeHex(arr: any) {
 function recover(groupShares: any, pass: any, masterSecret: any) {
   const recoveredSecret: any = slip39.recoverSecret(groupShares, pass);
   console.log('\tMaster secret: ' + masterSecret);
-  console.log('\tRecovered one: ' + slip39DecodeHex(recoveredSecret));
-  console.log(`Nmonics: ${slip39DecodeHex(recoveredSecret)}`);
+  const recovered = slip39DecodeHex(recoveredSecret);
+  console.log('\tRecovered one: ' + recovered);
+  return recovered;
   // assert(masterSecret === slip39DecodeHex(recoveredSecret));
 }
 
@@ -73,7 +74,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
   const deriveAddress = await getBIP44AddressKeyDeriver(ethNode);
 
-  // Derive the second Dogecoin address, which has index 1.
   const firstAccount = await deriveAddress(0);
   const secondAccount = await deriveAddress(1);
 
@@ -145,10 +145,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       );
       printShares(requiredGroupShares);
       recover(requiredGroupShares, passphrase, firstAccount.privateKey);
-      const recoveredSecret = slip39.recoverSecret(
-        requiredGroupShares,
-        passphrase,
-      );
 
       const requiredGroupSharesList: string[] = requiredGroupShares.map(
         (s: string, i: number) => `${s}`,
@@ -197,7 +193,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       if (!recoverParams) throw new Error('Error con los params');
 
-      recover(
+      const recovered = recover(
         recoverParams.shares,
         recoverParams.passphrase,
         firstAccount.privateKey,
@@ -208,12 +204,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         params: {
           type: 'confirmation',
           content: panel([
-            text(`Hello, **${origin}**!`),
-            text('This custom confirmation is just for display purposes.'),
-            text(
-              'But you can edit the snap source code to make it do something, if you want to!',
-            ),
-            text(JSON.stringify(recoverParams)),
+            text(`Hello, from **${origin}**!`),
+            text('Your keys was recovered'),
+            text(`Master:`),
+            copyable(firstAccount.privateKey ?? ''),
+            text('Recovered:'),
+            copyable(recovered),
           ]),
         },
       });

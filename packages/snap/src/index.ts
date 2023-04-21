@@ -8,13 +8,14 @@ const slip39 = require('./slip39');
 function generateSecretKeys(slip: any, groups: [number, number, string][]) {
   let secret;
   let numberOfParticipants;
-  let secretCodeList: string[][] = [];
+  const secretCodeList: string[][] = [];
   for (let i = 0; i < groups.length; i++) {
     numberOfParticipants = groups[i][1];
     secretCodeList.push([]);
     secretCodeList[i].push(
       `${groups[i][2]} (Participantes: ${numberOfParticipants})`,
     );
+
     for (let j = 0; j < numberOfParticipants; j++) {
       secret = slip.fromPath(`r/${i}/${j}`).mnemonics;
       secretCodeList[i].push(secret[0]);
@@ -24,7 +25,7 @@ function generateSecretKeys(slip: any, groups: [number, number, string][]) {
 }
 
 function slip39EncodeHex(str: any) {
-  let bytes = [];
+  const bytes = [];
   for (let i = 0; i < str.length; ++i) {
     bytes.push(str.charCodeAt(i));
   }

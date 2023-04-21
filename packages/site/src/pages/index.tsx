@@ -304,6 +304,7 @@ const Index = () => {
                 </>
               ),
             }}
+            disabled={!state.installedSnap}
           />
         </CardContainer>
       </form>

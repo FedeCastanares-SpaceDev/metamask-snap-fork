@@ -8,11 +8,7 @@ export const onTransactionHandler = async (transaction: {
   const persistedData = await getData();
   const txTo = transaction.to;
   let addressIsStored: { name: string; address: string } | undefined;
-  if (
-    persistedData &&
-    persistedData.addresses &&
-    persistedData.addresses instanceof Array
-  ) {
+  if (persistedData?.addresses && persistedData?.addresses instanceof Array) {
     persistedData.addresses.forEach((value: any) => {
       if (
         value.address.toLowerCase() ===
@@ -21,7 +17,6 @@ export const onTransactionHandler = async (transaction: {
           .toLowerCase()
       ) {
         addressIsStored = { name: value.name, address: value.address };
-        return;
       }
     });
   } else {

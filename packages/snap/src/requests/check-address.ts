@@ -4,9 +4,9 @@ import { getData } from '../helpers/store-managment.helper';
 
 export const checkAddress = async (
   request: JsonRpcRequest<Json[] | Record<string, Json>>,
-) => {
+): Promise<void> => {
   const persistedDataAddresses = await getData();
-  let addressTo: string = '';
+  let addressTo = '';
   if (request.params instanceof Array) {
     throw new Error('No lo esparaba');
   } else {
@@ -18,16 +18,15 @@ export const checkAddress = async (
   }
 
   if (
-    persistedDataAddresses &&
-    persistedDataAddresses.addresses &&
-    persistedDataAddresses.addresses instanceof Array
+    persistedDataAddresses?.addresses &&
+    persistedDataAddresses?.addresses instanceof Array
   ) {
     persistedDataAddresses.addresses.find(
       (value: any) => value.address.toLowerCase() === addressTo.toLowerCase(),
     );
   }
 
-  if (!!addressTo) {
+  if (addressTo === '') {
     const respOfSave = await snap.request({
       method: 'snap_dialog',
       params: {
@@ -48,21 +47,23 @@ export const checkAddress = async (
 
       if (!persistedDataAddresses) {
         try {
-          return snap.request({
+          await snap.request({
             method: 'snap_manageState',
             params: {
               operation: 'update',
               newState: { addresses: [{ name, addressTo }] },
             },
           });
-        } catch (error) {}
+        } catch (error) {
+          console.error('error updating: ', error.message);
+        }
       } else if (
         persistedDataAddresses.addresses &&
         persistedDataAddresses.addresses instanceof Array
       ) {
         const addresessCopy = persistedDataAddresses.addresses;
         try {
-          return snap.request({
+          await snap.request({
             method: 'snap_manageState',
             params: {
               operation: 'update',
@@ -71,7 +72,9 @@ export const checkAddress = async (
               },
             },
           });
-        } catch (error) {}
+        } catch (error) {
+          console.error('error updating: ', error.message);
+        }
       }
     }
   }

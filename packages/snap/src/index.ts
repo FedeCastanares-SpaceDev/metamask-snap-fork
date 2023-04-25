@@ -10,14 +10,12 @@ import { getAddresses } from './requests/get-addresses';
 import { saveAddress } from './requests/save-address';
 import { onTransactionHandler } from './requests/on-transaction';
 
-const slip39 = require('./slip39');
+import { Slip39 as slip39 } from './slip39';
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
  *
  * @param args - The request handler args as object.
- * @param args.origin - The origin of the request, e.g., the website that
- * invoked the snap.
  * @param args.request - A validated JSON-RPC request object.
  * @returns The result of `snap_dialog`.
  * @throws If the request method is not valid for this snap.

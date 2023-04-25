@@ -104,7 +104,7 @@ export const recoverAction = async (params: RecoverParamsType) => {
   });
 };
 
-export const sendTransaction = async () => {
+export const sendTransaction = async (): Promise<void> => {
   const [from] = (await window.ethereum.request({
     method: 'eth_requestAccounts',
   })) as string[];
@@ -113,7 +113,7 @@ export const sendTransaction = async () => {
 
   try {
     // Send a transaction to MetaMask.
-    const txresponse = await window.ethereum.request({
+    await window.ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -124,9 +124,8 @@ export const sendTransaction = async () => {
         },
       ],
     });
-    console.log('txresponse', txresponse);
 
-    return window.ethereum.request({
+    await window.ethereum.request({
       method: 'wallet_invokeSnap',
       params: {
         snapId: defaultSnapOrigin,
@@ -136,7 +135,6 @@ export const sendTransaction = async () => {
   } catch (error) {
     console.log('error en sendTrans', error);
   }
-  return;
 };
 
 export const getAddresses = async () => {

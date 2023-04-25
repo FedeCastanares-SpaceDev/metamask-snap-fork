@@ -311,7 +311,7 @@ const Index = () => {
                       })
                     }
                   >
-                    Retrieve Phrase
+                    Retrieve private key
                   </ButtonBase>
                 </>
               ),

@@ -31,7 +31,7 @@ class Slip39Node {
 // The javascript implementation of the SLIP-0039: Shamir's Secret-Sharing for Mnemonic Codes
 // see: https://github.com/satoshilabs/slips/blob/master/slip-0039.md)
 //
-class Slip39 {
+export class Slip39 {
   constructor({
     iterationExponent = 0,
     identifier,
@@ -224,5 +224,3 @@ class Slip39 {
     return result;
   }
 }
-
-exports = module.exports = Slip39;

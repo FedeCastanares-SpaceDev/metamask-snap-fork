@@ -4,6 +4,14 @@ import { ParamsType } from '../../../../types/params.type';
 import { arraySharesToTextAndCopyType } from '../types/text-and-copy.type';
 import { getUserAddress } from '../helpers/get-user-address.helper';
 
+/**
+ * Enconde from string to bytes
+ *
+ * Enconde from string to bytes
+ *
+ * @param str
+ * @returns bytes number[]
+ */
 function slip39EncodeHex(str: any) {
   const bytes = [];
   for (let i = 0; i < str.length; ++i) {
@@ -12,6 +20,13 @@ function slip39EncodeHex(str: any) {
   return bytes;
 }
 
+/**
+ * Generate secret keys by groups
+ *
+ * @param slip
+ * @param groups
+ * @returns secretCodeList the code list
+ */
 function generateSecretKeys(slip: any, groups: [number, number, string][]) {
   let secret;
   let numberOfParticipants;
@@ -31,6 +46,10 @@ function generateSecretKeys(slip: any, groups: [number, number, string][]) {
   return secretCodeList;
 }
 
+/**
+ *
+ * @param array
+ */
 function arraySharesToTextAndCopy(
   array: string[][],
 ): arraySharesToTextAndCopyType[][] {
@@ -48,6 +67,10 @@ function arraySharesToTextAndCopy(
   return response;
 }
 
+/**
+ *
+ * @param array
+ */
 function sharesToList(
   array: arraySharesToTextAndCopyType[][],
 ): arraySharesToTextAndCopyType[] {
@@ -62,9 +85,9 @@ export const generateShares = async (
 ) => {
   const firstAccount = await getUserAddress(0);
 
-  let threshold: ParamsType['threshold'] | undefined = undefined;
-  let passphrase: ParamsType['passphrase'] | undefined = undefined;
-  let groups: ParamsType['groups'] | undefined = undefined;
+  let threshold: ParamsType['threshold'] | undefined;
+  let passphrase: ParamsType['passphrase'] | undefined;
+  let groups: ParamsType['groups'] | undefined;
 
   if (request.params instanceof Array) {
     throw new Error('No lo esparaba');
@@ -73,9 +96,11 @@ export const generateShares = async (
       if (key === 'groups' && value instanceof Array) {
         groups = value as ParamsType['groups'];
       }
+
       if (key === 'threshold' && typeof value === 'string') {
         threshold = value;
       }
+
       if (key === 'passphrase' && typeof value === 'string') {
         passphrase = value;
       }
@@ -90,7 +115,9 @@ export const generateShares = async (
     };
   }
 
-  if (!params) throw new Error('Error con los params');
+  if (!params) {
+    throw new Error('Error con los params');
+  }
 
   const slip = slip39.fromArray(slip39EncodeHex(firstAccount.privateKey), {
     passphrase: params.passphrase,

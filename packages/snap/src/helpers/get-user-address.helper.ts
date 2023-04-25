@@ -1,4 +1,4 @@
-import { getBIP44AddressKeyDeriver } from "@metamask/key-tree";
+import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 
 export const getUserAddress = async (index: number) => {
   const ethNode = await snap.request({
@@ -10,5 +10,5 @@ export const getUserAddress = async (index: number) => {
 
   const deriveAddress = await getBIP44AddressKeyDeriver(ethNode);
 
-  return deriveAddress(index)
+  return deriveAddress(index);
 };

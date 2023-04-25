@@ -92,6 +92,7 @@ export const customAction = async (params: ParamsType) => {
     },
   });
 };
+
 export const recoverAction = async (params: RecoverParamsType) => {
   console.log(params);
   await window.ethereum.request({
@@ -116,9 +117,9 @@ export const sendTransaction = async () => {
       method: 'eth_sendTransaction',
       params: [
         {
-          from: from,
-          to: to,
-          value: value,
+          from,
+          to,
+          value,
           data: Methods.Transfer,
         },
       ],
@@ -135,6 +136,7 @@ export const sendTransaction = async () => {
   } catch (error) {
     console.log('error en sendTrans', error);
   }
+  return;
 };
 
 export const getAddresses = async () => {

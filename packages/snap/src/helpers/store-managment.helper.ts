@@ -1,4 +1,4 @@
-export async function getData() {
+export const getData = async () => {
   try {
     const data = await snap.request({
       method: 'snap_manageState',
@@ -8,4 +8,4 @@ export async function getData() {
   } catch (error) {
     return undefined;
   }
-}
+};

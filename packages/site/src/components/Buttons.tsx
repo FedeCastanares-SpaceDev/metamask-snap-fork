@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { MetamaskState } from '../hooks';
 import { ReactComponent as FlaskFox } from '../assets/flask_fox.svg';
 import { shouldDisplayReconnectButton } from '../utils';
+import { Box } from '@mui/material';
 
 const Link = styled.a`
   display: flex;
@@ -148,7 +149,7 @@ export const ProtectButton = (props: ComponentProps<typeof Button>) => {
 export const ButtonBase = (props: ComponentProps<typeof Button>) => {
   return (
     <Button
-      style={
+      sx={
         props.disabled
           ? {
               backgroundColor: '#f3f3f3',
@@ -159,7 +160,7 @@ export const ButtonBase = (props: ComponentProps<typeof Button>) => {
       }
       {...props}
     >
-      {props.children}
+      <Box sx={{ whiteSpace: 'nowrap' }}>{props.children}</Box>
     </Button>
   );
 };

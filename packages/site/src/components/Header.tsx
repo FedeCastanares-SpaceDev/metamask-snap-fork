@@ -1,8 +1,16 @@
 import { useContext } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import { connectSnap, getThemePreference, getSnap } from '../utils';
-import { HeaderButtons } from './Buttons';
+import {
+  connectSnap,
+  getThemePreference,
+  getSnap,
+  sendHello,
+  sendTransaction,
+  getAddresses,
+  saveAddress,
+} from '../utils';
+import { ButtonBase, HeaderButtons } from './Buttons';
 import SpaceLogoImage from '../assets/space-logo-horizontal.png';
 import { Toggle } from './Toggle';
 
@@ -35,6 +43,7 @@ const RightContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 1rem;
 `;
 
 export const Header = ({
@@ -65,6 +74,18 @@ export const Header = ({
         <img src={SpaceLogoImage} alt="Logo Spacedev" height={64} />
       </LogoWrapper>
       <RightContainer>
+        <ButtonBase onClick={() => sendHello()} type="button">
+          Hello
+        </ButtonBase>
+        <ButtonBase onClick={() => getAddresses()} type="button">
+          Get addresses
+        </ButtonBase>
+        <ButtonBase onClick={() => saveAddress()} type="button">
+          Save address
+        </ButtonBase>
+        <ButtonBase onClick={() => sendTransaction()} type="button">
+          Transfer
+        </ButtonBase>
         <Toggle
           onToggle={handleToggleClick}
           defaultChecked={getThemePreference()}

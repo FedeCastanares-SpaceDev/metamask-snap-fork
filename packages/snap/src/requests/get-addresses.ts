@@ -1,5 +1,5 @@
 import { text, copyable, panel, heading } from '@metamask/snaps-ui';
-import { getData } from '../helpers/store-managment.helper';
+import { getData } from '../helpers/store-management.helper';
 import { arraySharesToTextAndCopyType } from '../types/text-and-copy.type';
 
 export const getAddresses = async () => {

@@ -1,5 +1,5 @@
 import { panel, heading, text, copyable } from '@metamask/snaps-ui';
-import { saveAddress as saveAddressHelper } from '../helpers/store-managment.helper';
+import { saveAddressStoreManagement } from '../helpers/store-management.helper';
 
 export const saveAddress = async (): Promise<void> => {
   const name = await snap.request({
@@ -37,7 +37,7 @@ export const saveAddress = async (): Promise<void> => {
   });
 
   if (saveresult === true) {
-    await saveAddressHelper({
+    await saveAddressStoreManagement({
       name: name.toString(),
       address: address.toString(),
     });

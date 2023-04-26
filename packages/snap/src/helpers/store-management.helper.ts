@@ -10,7 +10,7 @@ export const getData = async () => {
   }
 };
 
-export const saveAddress = async (newAddress: {
+export const saveAddressStoreManagement = async (newAddress: {
   name: string;
   address: string;
 }) => {

@@ -1,6 +1,6 @@
 import { JsonRpcRequest, Json } from '@metamask/snaps-types';
 import { panel, heading, copyable } from '@metamask/snaps-ui';
-import { getData, saveAddress } from '../helpers/store-managment.helper';
+import { getData, saveAddressStoreManagement } from '../helpers/store-management.helper';
 
 export const checkAddress = async (
   request: JsonRpcRequest<Json[] | Record<string, Json>>,
@@ -48,7 +48,7 @@ export const checkAddress = async (
       });
       if (!name) return;
 
-      await saveAddress({ name: name.toString(), address: addressTo });
+      await saveAddressStoreManagement({ name: name.toString(), address: addressTo });
     }
   }
 };

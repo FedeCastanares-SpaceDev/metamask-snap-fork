@@ -1,6 +1,6 @@
 import { Json } from '@metamask/snaps-types';
 import { panel, heading, text } from '@metamask/snaps-ui';
-import { getData } from '../helpers/store-managment.helper';
+import { getData } from '../helpers/store-management.helper';
 
 export const onTransactionHandler = async (transaction: {
   [key: string]: Json;

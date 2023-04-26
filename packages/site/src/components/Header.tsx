@@ -75,21 +75,11 @@ export const Header = ({
         <img src={SpaceLogoImage} alt="Logo Spacedev" height={64} />
       </LogoWrapper>
       <RightContainer>
-        <ButtonBase onClick={() => sendHello()} type="button">
-          Hello
-        </ButtonBase>
-        <ButtonBase onClick={() => cleanData()} type="button">
-          Clean data
-        </ButtonBase>
-        <ButtonBase onClick={() => getAddresses()} type="button">
-          Get addresses
-        </ButtonBase>
-        <ButtonBase onClick={() => saveAddress()} type="button">
-          Save address
-        </ButtonBase>
-        <ButtonBase onClick={() => sendTransaction()} type="button">
-          Transfer
-        </ButtonBase>
+        <ButtonBase onClick={() => sendHello()}>Hello</ButtonBase>
+        <ButtonBase onClick={() => cleanData()}>Clean data</ButtonBase>
+        <ButtonBase onClick={() => getAddresses()}>Get addresses</ButtonBase>
+        <ButtonBase onClick={() => saveAddress()}>Save address</ButtonBase>
+        <ButtonBase onClick={() => sendTransaction()}>Transfer</ButtonBase>
         <Toggle
           onToggle={handleToggleClick}
           defaultChecked={getThemePreference()}

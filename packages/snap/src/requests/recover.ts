@@ -68,10 +68,10 @@ export const recoverPrivateKey = async (
     slip39,
   );
 
-  const result = await snap.request({
+  await snap.request({
     method: 'snap_dialog',
     params: {
-      type: 'confirmation',
+      type: 'alert',
       content: panel([
         text('Your key was recovered'),
         text('Your private key:'),
@@ -81,7 +81,4 @@ export const recoverPrivateKey = async (
       ]),
     },
   });
-  if (result === true) {
-    // Do the action
-  }
 };

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import { customAction, recoverAction } from '../utils';
+import { protectPrivateKeyAction, recoverAction } from '../utils';
 import { Input, Card, ProtectButton, Table, ButtonBase } from '../components';
 import { ParamsType } from '../../../../types/params.type';
 import { Alert, IconButton } from '@mui/material';
@@ -94,9 +94,15 @@ const Index = () => {
 
   const [error, setError] = useState('');
 
-  const handleCustomAction = async (params: ParamsType) => {
+  const handleRecoverAction = () =>
+    recoverAction({
+      shares,
+      passphrase: passphraseForRecover,
+    });
+
+  const handleProtectPrivateKeyAction = async (params: ParamsType) => {
     try {
-      await customAction(params);
+      await protectPrivateKeyAction(params);
     } catch (e) {
       showError(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -106,7 +112,7 @@ const Index = () => {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      handleCustomAction({
+      handleProtectPrivateKeyAction({
         threshold,
         passphrase,
         groups,
@@ -137,7 +143,7 @@ const Index = () => {
         <CardContainer>
           <Card
             content={{
-              title: 'Protect your seed phrase',
+              title: 'Protect your private key',
               description: (
                 <>
                   <StyledDiv>
@@ -263,7 +269,7 @@ const Index = () => {
           />
           <Card
             content={{
-              title: 'Recover your phrase',
+              title: 'Recover your private key',
               description: (
                 <>
                   <StyledDiv>
@@ -306,15 +312,7 @@ const Index = () => {
                     + Add one more
                   </ButtonBase>
                   <br />
-                  <ButtonBase
-                    type="button"
-                    onClick={() =>
-                      recoverAction({
-                        shares,
-                        passphrase: passphraseForRecover,
-                      })
-                    }
-                  >
+                  <ButtonBase type="button" onClick={handleRecoverAction}>
                     Retrieve private key
                   </ButtonBase>
                 </>

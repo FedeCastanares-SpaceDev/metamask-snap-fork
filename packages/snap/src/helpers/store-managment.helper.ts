@@ -9,3 +9,42 @@ export const getData = async () => {
     return undefined;
   }
 };
+
+export const saveAddress = async (newAddress: {
+  name: string;
+  address: string;
+}) => {
+  const persistedData = await getData();
+
+  if (!persistedData) {
+    try {
+      await snap.request({
+        method: 'snap_manageState',
+        params: {
+          operation: 'update',
+          newState: { addresses: [newAddress] },
+        },
+      });
+    } catch (error) {
+      console.error('error updating: ', error.message);
+    }
+  } else if (
+    persistedData.addresses &&
+    persistedData.addresses instanceof Array
+  ) {
+    const addresessCopy = persistedData.addresses;
+    try {
+      await snap.request({
+        method: 'snap_manageState',
+        params: {
+          operation: 'update',
+          newState: {
+            addresses: [...addresessCopy, newAddress],
+          },
+        },
+      });
+    } catch (error) {
+      console.error('error updating: ', error.message);
+    }
+  }
+};

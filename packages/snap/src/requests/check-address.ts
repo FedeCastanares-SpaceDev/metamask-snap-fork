@@ -1,15 +1,17 @@
 import { JsonRpcRequest, Json } from '@metamask/snaps-types';
 import { panel, heading, copyable } from '@metamask/snaps-ui';
-import { getData } from '../helpers/store-managment.helper';
+import { getData, saveAddress } from '../helpers/store-managment.helper';
 
 export const checkAddress = async (
   request: JsonRpcRequest<Json[] | Record<string, Json>>,
 ): Promise<void> => {
-  const persistedDataAddresses = await getData();
+  const persistedData = await getData();
   let addressTo = '';
   let thisAddressExist: boolean = false;
+
+  // Read the address to which the transaction was made
   if (request.params instanceof Array) {
-    throw new Error('No lo esparaba');
+    throw new Error('');
   } else {
     Object.entries(request.params).forEach(([key, value]) => {
       if (key === 'address' && typeof value === 'string') {
@@ -18,18 +20,16 @@ export const checkAddress = async (
     });
   }
 
-  if (
-    persistedDataAddresses?.addresses &&
-    persistedDataAddresses?.addresses instanceof Array
-  ) {
-    const exist = persistedDataAddresses.addresses.find(
+  // We look for this address in our data
+  if (persistedData?.addresses && persistedData?.addresses instanceof Array) {
+    const exist = persistedData.addresses.find(
       (value: any) => value.address.toLowerCase() === addressTo.toLowerCase(),
     );
     exist ? (thisAddressExist = true) : (thisAddressExist = false);
   }
 
-  if (addressTo !== '' && !thisAddressExist) {
-    const respOfSave = await snap.request({
+  if (!thisAddressExist) {
+    const response = await snap.request({
       method: 'snap_dialog',
       params: {
         type: 'confirmation',
@@ -37,7 +37,7 @@ export const checkAddress = async (
       },
     });
 
-    if (respOfSave === true) {
+    if (response === true) {
       const name = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -46,38 +46,9 @@ export const checkAddress = async (
           placeholder: 'Name',
         },
       });
+      if (!name) return;
 
-      if (!persistedDataAddresses) {
-        try {
-          await snap.request({
-            method: 'snap_manageState',
-            params: {
-              operation: 'update',
-              newState: { addresses: [{ name, address: addressTo }] },
-            },
-          });
-        } catch (error) {
-          console.error('error updating: ', error.message);
-        }
-      } else if (
-        persistedDataAddresses.addresses &&
-        persistedDataAddresses.addresses instanceof Array
-      ) {
-        const addresessCopy = persistedDataAddresses.addresses;
-        try {
-          await snap.request({
-            method: 'snap_manageState',
-            params: {
-              operation: 'update',
-              newState: {
-                addresses: [...addresessCopy, { name, address: addressTo }],
-              },
-            },
-          });
-        } catch (error) {
-          console.error('error updating: ', error.message);
-        }
-      }
+      await saveAddress({ name: name.toString(), address: addressTo });
     }
   }
 };

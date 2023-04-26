@@ -77,18 +77,18 @@ export const sendHello = async () => {
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
-      request: { method: 'hello', params: { datas: 'Pelado' } },
+      request: { method: 'hello' },
     },
   });
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
-export const customAction = async (params: ParamsType) => {
+export const protectPrivateKeyAction = async (params: ParamsType) => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
-      request: { method: 'custom', params },
+      request: { method: 'protect_private_key', params },
     },
   });
 };

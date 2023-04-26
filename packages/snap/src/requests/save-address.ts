@@ -1,12 +1,12 @@
 import { panel, heading, text, copyable } from '@metamask/snaps-ui';
-import { getData } from '../helpers/store-managment.helper';
+import { saveAddress as saveAddressHelper } from '../helpers/store-managment.helper';
 
 export const saveAddress = async (): Promise<void> => {
   const name = await snap.request({
     method: 'snap_dialog',
     params: {
       type: 'prompt',
-      content: panel([heading('Save the address for:')]),
+      content: panel([heading('Save this address for:')]),
       placeholder: 'Name',
     },
   });
@@ -37,31 +37,9 @@ export const saveAddress = async (): Promise<void> => {
   });
 
   if (saveresult === true) {
-    const persistedData = await getData();
-    if (!persistedData) {
-      try {
-        await snap.request({
-          method: 'snap_manageState',
-          params: {
-            operation: 'update',
-            newState: { addresses: [{ name, address }] },
-          },
-        });
-      } catch (error) {}
-    } else if (
-      persistedData.addresses &&
-      persistedData.addresses instanceof Array
-    ) {
-      const addresessCopy = persistedData.addresses;
-      try {
-        await snap.request({
-          method: 'snap_manageState',
-          params: {
-            operation: 'update',
-            newState: { addresses: [...addresessCopy, { name, address }] },
-          },
-        });
-      } catch (error) {}
-    }
+    await saveAddressHelper({
+      name: name.toString(),
+      address: address.toString(),
+    });
   }
 };

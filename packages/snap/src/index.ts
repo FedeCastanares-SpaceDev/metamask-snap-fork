@@ -27,7 +27,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
     case 'hello':
       return await helloSnap();
     // snap_getBip44Entropy - snap_dialog
-    case 'custom':
+    case 'protect_private_key':
       return await generateShares(request, slip39);
     // snap_getBip44Entropy - snap_dialog
     case 'recover':

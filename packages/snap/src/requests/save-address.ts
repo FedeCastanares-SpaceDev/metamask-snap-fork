@@ -10,6 +10,8 @@ export const saveAddress = async (): Promise<void> => {
       placeholder: 'Name',
     },
   });
+  if (!name) return;
+
   const address = await snap.request({
     method: 'snap_dialog',
     params: {
@@ -18,6 +20,7 @@ export const saveAddress = async (): Promise<void> => {
       placeholder: '0x...',
     },
   });
+  if (!address) return;
 
   const saveresult = await snap.request({
     method: 'snap_dialog',

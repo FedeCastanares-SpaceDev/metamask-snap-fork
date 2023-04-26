@@ -9,6 +9,7 @@ import {
   sendTransaction,
   getAddresses,
   saveAddress,
+  cleanData,
 } from '../utils';
 import { ButtonBase, HeaderButtons } from './Buttons';
 import SpaceLogoImage from '../assets/space-logo-horizontal.png';
@@ -76,6 +77,9 @@ export const Header = ({
       <RightContainer>
         <ButtonBase onClick={() => sendHello()} type="button">
           Hello
+        </ButtonBase>
+        <ButtonBase onClick={() => cleanData()} type="button">
+          Clean data
         </ButtonBase>
         <ButtonBase onClick={() => getAddresses()} type="button">
           Get addresses

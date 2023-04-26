@@ -7,6 +7,7 @@ export const checkAddress = async (
 ): Promise<void> => {
   const persistedDataAddresses = await getData();
   let addressTo = '';
+  let thisAddressExist: boolean = false;
   if (request.params instanceof Array) {
     throw new Error('No lo esparaba');
   } else {
@@ -21,12 +22,13 @@ export const checkAddress = async (
     persistedDataAddresses?.addresses &&
     persistedDataAddresses?.addresses instanceof Array
   ) {
-    persistedDataAddresses.addresses.find(
+    const exist = persistedDataAddresses.addresses.find(
       (value: any) => value.address.toLowerCase() === addressTo.toLowerCase(),
     );
+    exist ? (thisAddressExist = true) : (thisAddressExist = false);
   }
 
-  if (addressTo === '') {
+  if (addressTo !== '' && !thisAddressExist) {
     const respOfSave = await snap.request({
       method: 'snap_dialog',
       params: {
@@ -51,7 +53,7 @@ export const checkAddress = async (
             method: 'snap_manageState',
             params: {
               operation: 'update',
-              newState: { addresses: [{ name, addressTo }] },
+              newState: { addresses: [{ name, address: addressTo }] },
             },
           });
         } catch (error) {

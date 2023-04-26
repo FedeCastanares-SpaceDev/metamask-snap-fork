@@ -10,12 +10,15 @@ export const getAddresses = async () => {
       renderAddresses.push(text(`${value.name}: `));
       renderAddresses.push(copyable(value.address ?? ''));
     });
+  } else {
+    renderAddresses.push(text('You have no addresses saved yet'));
   }
+
   return snap.request({
     method: 'snap_dialog',
     params: {
       type: 'alert',
-      content: panel([heading('Addresses'), ...renderAddresses]),
+      content: panel([heading('Addresses: '), ...renderAddresses]),
     },
   });
 };

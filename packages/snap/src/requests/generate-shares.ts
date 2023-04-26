@@ -132,10 +132,10 @@ export const generateShares = async (
 
   const sharesList = sharesToList(shares);
 
-  const customResult = await snap.request({
+  await snap.request({
     method: 'snap_dialog',
     params: {
-      type: 'confirmation',
+      type: 'alert',
       content: panel([
         text(`Hi your share list is:`),
         text(' -------------------------------------- '),
@@ -143,7 +143,4 @@ export const generateShares = async (
       ]),
     },
   });
-  if (customResult === true) {
-    // Do the action
-  }
 };

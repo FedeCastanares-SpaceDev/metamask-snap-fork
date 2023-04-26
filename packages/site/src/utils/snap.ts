@@ -137,6 +137,16 @@ export const sendTransaction = async (): Promise<void> => {
   }
 };
 
+export const cleanData = async () => {
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'clean_data' },
+    },
+  });
+};
+
 export const getAddresses = async () => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',

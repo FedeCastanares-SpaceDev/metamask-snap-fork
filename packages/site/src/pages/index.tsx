@@ -28,10 +28,14 @@ const Heading = styled.h1`
   margin-top: 0;
   margin-bottom: 1rem;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
 `;
 
 const Span = styled.span`
-  color: ${(props) => props.theme.colors.primary.default};
+  color: #43a7ff;
 `;
 
 const CardContainer = styled.div`
@@ -128,7 +132,7 @@ const Index = () => {
     <Container>
       <form onSubmit={onSubmit}>
         <Heading>
-          Welcome to <Span>SpaceDev</Span>
+          Welcome to <Span>Ethereum Uruguay 🇺🇾</Span>
         </Heading>
         <CardContainer>
           <Card

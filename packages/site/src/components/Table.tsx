@@ -68,8 +68,7 @@ export function Table({
               <StyledTableCell align="right">{row.total}</StyledTableCell>
               <StyledTableCell align="right">
                 <IconButton
-                  sx={{ height: 40, width: 40 }}
-                  color="secondary"
+                  sx={{ height: 40, width: 40, color: '#43a7ff' }}
                   onClick={() => removeAction(index)}
                 >
                   <CloseIcon />

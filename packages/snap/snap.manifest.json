@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
   "description": "Snap test of Space dev",
-  "proposedName": "Spacedev",
+  "proposedName": "Ethereum Uruguay 🇺🇾",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "hjfYIF5T3fpBvn8+xvdT3O/YCi1n5Ovji5o1hRSGFdY=",
+    "shasum": "7kXhY9j+D4P6yMIM+WpvsCQ29yRTXHO5AM42ngZVfZ4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

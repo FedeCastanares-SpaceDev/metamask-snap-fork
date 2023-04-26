@@ -36,7 +36,7 @@ export const onTransactionHandler = async (transaction: {
           ? `Esta address pertenece a:`
           : 'Esta address no esta guardada, luego de la transaccion te preguntaremos si la quieres guardar',
       ),
-      heading(addressIsStored?.name ?? ''),
+      text(`**${addressIsStored?.name ?? ''}**`),
     ]),
   };
 };

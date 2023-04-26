@@ -1,9 +1,18 @@
 import { useContext } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import { connectSnap, getThemePreference, getSnap } from '../utils';
-import { HeaderButtons } from './Buttons';
-import { SnapLogo } from './SnapLogo';
+import {
+  connectSnap,
+  getThemePreference,
+  getSnap,
+  sendHello,
+  sendTransaction,
+  getAddresses,
+  saveAddress,
+  cleanData,
+} from '../utils';
+import { ButtonBase, HeaderButtons } from './Buttons';
+import SpaceLogoImage from '../assets/space-logo-horizontal.png';
 import { Toggle } from './Toggle';
 
 const HeaderWrapper = styled.header`
@@ -35,6 +44,7 @@ const RightContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 1rem;
 `;
 
 export const Header = ({
@@ -62,10 +72,14 @@ export const Header = ({
   return (
     <HeaderWrapper>
       <LogoWrapper>
-        <SnapLogo color={theme.colors.icon.default} size={36} />
-        <Title>template-snap</Title>
+        <img src={SpaceLogoImage} alt="Logo Spacedev" height={64} />
       </LogoWrapper>
       <RightContainer>
+        <ButtonBase onClick={() => sendHello()}>Hello</ButtonBase>
+        <ButtonBase onClick={() => cleanData()}>Clean data</ButtonBase>
+        <ButtonBase onClick={() => getAddresses()}>Get addresses</ButtonBase>
+        <ButtonBase onClick={() => saveAddress()}>Save address</ButtonBase>
+        <ButtonBase onClick={() => sendTransaction()}>Transfer</ButtonBase>
         <Toggle
           onToggle={handleToggleClick}
           defaultChecked={getThemePreference()}

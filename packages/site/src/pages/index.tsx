@@ -1,27 +1,20 @@
-import { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import {
-  connectSnap,
-  getSnap,
-  sendHello,
-  shouldDisplayReconnectButton,
-} from '../utils';
-import {
-  ConnectButton,
-  InstallFlaskButton,
-  ReconnectButton,
-  SendHelloButton,
-  Card,
-} from '../components';
+import { protectPrivateKeyAction, recoverAction } from '../utils';
+import { Input, Card, ProtectButton, Table, ButtonBase } from '../components';
+import { ParamsType } from '../../../../types/params.type';
+import { Alert, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
-  margin-top: 7.6rem;
-  margin-bottom: 7.6rem;
+  margin-top: 1.6rem;
+  margin-bottom: 1.6rem;
   ${({ theme }) => theme.mediaQueries.small} {
     padding-left: 2.4rem;
     padding-right: 2.4rem;
@@ -33,22 +26,16 @@ const Container = styled.div`
 
 const Heading = styled.h1`
   margin-top: 0;
-  margin-bottom: 2.4rem;
+  margin-bottom: 1rem;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
 `;
 
 const Span = styled.span`
-  color: ${(props) => props.theme.colors.primary.default};
-`;
-
-const Subtitle = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.large};
-  font-weight: 500;
-  margin-top: 0;
-  margin-bottom: 0;
-  ${({ theme }) => theme.mediaQueries.small} {
-    font-size: ${({ theme }) => theme.fontSizes.text};
-  }
+  color: #43a7ff;
 `;
 
 const CardContainer = styled.div`
@@ -56,29 +43,11 @@ const CardContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  max-width: 64.8rem;
+  max-width: 90vw;
   width: 100%;
   height: 100%;
   margin-top: 1.5rem;
-`;
-
-const Notice = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.alternative};
-  border: 1px solid ${({ theme }) => theme.colors.border.default};
-  color: ${({ theme }) => theme.colors.text.alternative};
-  border-radius: ${({ theme }) => theme.radii.default};
-  padding: 2.4rem;
-  margin-top: 2.4rem;
-  max-width: 60rem;
-  width: 100%;
-
-  & > * {
-    margin: 0;
-  }
-  ${({ theme }) => theme.mediaQueries.small} {
-    margin-top: 1.2rem;
-    padding: 1.6rem;
-  }
+  gap: 4rem;
 `;
 
 const ErrorMessage = styled.div`
@@ -99,118 +68,270 @@ const ErrorMessage = styled.div`
   }
 `;
 
+const StyledDiv = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [threshold, setThreshold] = useState('');
+  const [passphrase, setPassphrase] = useState('');
+  const [groups, setGroups] = useState<[number, number, string][]>([
+    [1, 1, 'Your personal group share 1'],
+    [1, 1, 'Your personal group share 2'],
+    [3, 5, 'Friends with group share'],
+    [2, 6, 'Family with group share'],
+  ]);
+  const [showNewGroupInputs, setShowNewGroupInputs] = useState(false);
+  const [newGroup, setNewGroup] = useState<string[]>(['', '', '']);
 
-  const handleConnectClick = async () => {
+  const [shares, setShares] = useState<string[]>(['']);
+  const [passphraseForRecover, setPassphraseForRecover] = useState('');
+
+  const [error, setError] = useState('');
+
+  const handleRecoverAction = () =>
+    recoverAction({
+      shares,
+      passphrase: passphraseForRecover,
+    });
+
+  const handleProtectPrivateKeyAction = async (params: ParamsType) => {
     try {
-      await connectSnap();
-      const installedSnap = await getSnap();
-
-      dispatch({
-        type: MetamaskActions.SetInstalled,
-        payload: installedSnap,
-      });
+      await protectPrivateKeyAction(params);
     } catch (e) {
-      console.error(e);
+      showError(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await sendHello();
-    } catch (e) {
-      console.error(e);
-      dispatch({ type: MetamaskActions.SetError, payload: e });
+      handleProtectPrivateKeyAction({
+        threshold,
+        passphrase,
+        groups,
+      });
+    } catch (error) {
+      dispatch({ type: MetamaskActions.SetError, payload: error });
+      showError(error);
     }
+  };
+
+  const removeIndexOfGroup = (index: number) => {
+    const newState = [...groups];
+    newState.splice(index, 1);
+    setGroups(newState);
+  };
+
+  const showError = (error: any) => {
+    setError(error.message);
+    setTimeout(() => setError(''), 5000);
   };
 
   return (
     <Container>
-      <Heading>
-        Welcome to <Span>template-snap</Span>
-      </Heading>
-      <Subtitle>
-        Get started by editing <code>src/index.ts</code>
-      </Subtitle>
-      <CardContainer>
-        {state.error && (
-          <ErrorMessage>
-            <b>An error happened:</b> {state.error.message}
-          </ErrorMessage>
-        )}
-        {!state.isFlask && (
+      <form onSubmit={onSubmit}>
+        <Heading>
+          Welcome to <Span>Ethereum Uruguay 🇺🇾</Span>
+        </Heading>
+        <CardContainer>
           <Card
             content={{
-              title: 'Install',
-              description:
-                'Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.',
-              button: <InstallFlaskButton />,
-            }}
-            fullWidth
-          />
-        )}
-        {!state.installedSnap && (
-          <Card
-            content={{
-              title: 'Connect',
-              description:
-                'Get started by connecting to and installing the example snap.',
-              button: (
-                <ConnectButton
-                  onClick={handleConnectClick}
-                  disabled={!state.isFlask}
-                />
-              ),
-            }}
-            disabled={!state.isFlask}
-          />
-        )}
-        {shouldDisplayReconnectButton(state.installedSnap) && (
-          <Card
-            content={{
-              title: 'Reconnect',
-              description:
-                'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
-              button: (
-                <ReconnectButton
-                  onClick={handleConnectClick}
-                  disabled={!state.installedSnap}
-                />
+              title: 'Protect your private key',
+              description: (
+                <>
+                  <StyledDiv>
+                    <Input
+                      label="Threshold"
+                      name="threshold"
+                      placeholder="2"
+                      value={threshold}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setThreshold(e.target.value)
+                      }
+                    />
+                    <Input
+                      label="Passphrase"
+                      name="passphrase"
+                      placeholder=""
+                      value={passphrase}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setPassphrase(e.target.value)
+                      }
+                    />
+                  </StyledDiv>
+
+                  <br />
+                  <Table
+                    data={groups}
+                    colums={['Groups', 'Signs', 'Total', '']}
+                    removeAction={removeIndexOfGroup}
+                  />
+                  <br />
+                  {showNewGroupInputs && (
+                    <>
+                      <StyledDiv>
+                        <Input
+                          label="Signs"
+                          name="signs"
+                          placeholder="3"
+                          value={newGroup[0]}
+                          style={{ width: '2rem' }}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>,
+                          ) => {
+                            const stateCopy = [...newGroup];
+                            stateCopy[0] = e.target.value;
+                            setNewGroup(stateCopy);
+                          }}
+                        />
+                        <Input
+                          label="Total"
+                          name="total"
+                          placeholder="5"
+                          value={newGroup[1]}
+                          style={{ width: '2rem' }}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>,
+                          ) => {
+                            const stateCopy = [...newGroup];
+                            stateCopy[1] = e.target.value;
+                            setNewGroup(stateCopy);
+                          }}
+                        />
+                        <Input
+                          label="Description"
+                          name="description"
+                          placeholder=""
+                          value={newGroup[2]}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>,
+                          ) => {
+                            const stateCopy = [...newGroup];
+                            stateCopy[2] = e.target.value;
+                            setNewGroup(stateCopy);
+                          }}
+                        />
+
+                        <StyledDiv>
+                          <IconButton
+                            sx={{ height: 40, width: 40 }}
+                            color="secondary"
+                            onClick={() => setShowNewGroupInputs(false)}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                          <IconButton
+                            sx={{ height: 40, width: 40 }}
+                            color="inherit"
+                            onClick={() => {
+                              setShowNewGroupInputs(false);
+                              setGroups([
+                                ...groups,
+                                [
+                                  Number(newGroup[0]),
+                                  Number(newGroup[1]),
+                                  newGroup[2],
+                                ],
+                              ]);
+                              setNewGroup(['', '', '']);
+                            }}
+                          >
+                            <CheckIcon />
+                          </IconButton>
+                        </StyledDiv>
+                      </StyledDiv>
+                      <br />
+                    </>
+                  )}
+                  <ButtonBase
+                    onClick={() => setShowNewGroupInputs(true)}
+                    type="button"
+                  >
+                    + Add one more
+                  </ButtonBase>
+                  <br />
+                  <ProtectButton
+                    type="submit"
+                    onClick={onSubmit}
+                    disabled={!state.installedSnap || !passphrase || !threshold}
+                  />
+                </>
               ),
             }}
             disabled={!state.installedSnap}
           />
-        )}
-        <Card
-          content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
-            button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-        />
-        <Notice>
-          <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
-            <b>package.json</b> must be located in the server root directory and
-            the bundle must be hosted at the location specified by the location
-            field.
-          </p>
-        </Notice>
-      </CardContainer>
+          <Card
+            content={{
+              title: 'Recover your private key',
+              description: (
+                <>
+                  <StyledDiv>
+                    <p>Shares:</p>
+                    <Input
+                      label="Passphrase"
+                      name="passphrase"
+                      placeholder=""
+                      value={passphraseForRecover}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setPassphraseForRecover(e.target.value)
+                      }
+                    />
+                  </StyledDiv>
+
+                  {shares.map((share, index) => (
+                    <div key={index}>
+                      <Input
+                        type="textarea"
+                        label={`Share ${index + 1}`}
+                        name={`share ${index + 1}`}
+                        value={shares[index]}
+                        placeholder=""
+                        onChange={(
+                          e: React.ChangeEvent<HTMLTextAreaElement>,
+                        ) => {
+                          const copyOfShares = [...shares];
+                          copyOfShares[index] = e.target.value;
+                          setShares(copyOfShares);
+                        }}
+                      />
+                      <br />
+                    </div>
+                  ))}
+
+                  <ButtonBase
+                    onClick={() => setShares([...shares, ''])}
+                    type="button"
+                  >
+                    + Add one more
+                  </ButtonBase>
+                  <br />
+                  <ButtonBase type="button" onClick={handleRecoverAction}>
+                    Retrieve private key
+                  </ButtonBase>
+                </>
+              ),
+            }}
+            disabled={!state.installedSnap}
+          />
+        </CardContainer>
+      </form>
+      {error !== '' && (
+        <Alert
+          severity="error"
+          color="error"
+          variant="filled"
+          sx={{ fontSize: 24, position: 'absolute', top: '10vh' }}
+        >
+          {error}
+        </Alert>
+      )}
     </Container>
   );
 };

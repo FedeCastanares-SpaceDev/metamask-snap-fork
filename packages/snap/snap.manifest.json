@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example Snap",
+  "description": "Snap test of Space dev",
+  "proposedName": "Ethereum Uruguay 🇺🇾",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "CwMdrSLoPKRKypLyp9KFf36bFu1LPtiosyzT0JnqZN0=",
+    "shasum": "b7zR6amVYtveeDHc3vB4srcaWtNwlA7A90dfOzo/iT4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -19,10 +19,19 @@
   },
   "initialPermissions": {
     "snap_dialog": {},
+    "snap_manageState": {},
+    "endowment:transaction-insight": {
+      "allowTransactionOrigin": true
+    },
     "endowment:rpc": {
       "dapps": true,
-      "snaps": false
-    }
+      "snaps": true
+    },
+    "snap_getBip44Entropy": [
+      {
+        "coinType": 60
+      }
+    ]
   },
   "manifestVersion": "0.1"
 }

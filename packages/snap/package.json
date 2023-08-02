@@ -1,7 +1,6 @@
 {
   "name": "metamask-snaps-spacedev",
   "version": "0.1.1",
-  "private": false,
   "description": "Snap demo of SpaceDev",
   "repository": {
     "type": "git",

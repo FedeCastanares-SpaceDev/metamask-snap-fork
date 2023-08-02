@@ -148,7 +148,6 @@ export const ProtectButton = (props: ComponentProps<typeof Button>) => {
 };
 
 export const ButtonBase = (props: ComponentProps<typeof Button>) => {
-  console.log(props);
   return (
     <Button
       sx={

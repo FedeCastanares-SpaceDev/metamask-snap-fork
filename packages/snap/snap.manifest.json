@@ -1,5 +1,5 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Snap demo of SpaceDev",
   "proposedName": "SpaceDev 🇺🇾",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/juansobral/metamask-snap"
   },
   "source": {
-    "shasum": "29BnVU6qJzUwY6Qt/kGlERJP5IW+wyWyk4Z28ndzJsI=",
+    "shasum": "AyiFhlYpU6Clcyij0di15KykIVov4uv8C79NbCSYz9c=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

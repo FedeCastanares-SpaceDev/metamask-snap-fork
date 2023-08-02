@@ -57,7 +57,7 @@ export const Header = ({
 
   const handleConnectClick = async () => {
     try {
-      await connectSnap();
+      await connectSnap("npm:metamask-snaps-spacedev");
       const installedSnap = await getSnap();
 
       dispatch({

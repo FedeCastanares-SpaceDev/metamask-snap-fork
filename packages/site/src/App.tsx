@@ -20,8 +20,6 @@ export type AppProps = {
 export const App: FunctionComponent<AppProps> = ({ children }) => {
   const toggleTheme = useContext(ToggleThemeContext);
 
-  console.log('env SNAP_ORIGIN:', process.env.SNAP_ORIGIN);
-
   return (
     <>
       <GlobalStyle />

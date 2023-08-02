@@ -1,18 +1,18 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Snap demo of SpaceDev",
   "proposedName": "SpaceDev 🇺🇾",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+    "url": "https://github.com/juansobral/metamask-snap"
   },
   "source": {
-    "shasum": "b7zR6amVYtveeDHc3vB4srcaWtNwlA7A90dfOzo/iT4=",
+    "shasum": "qj0ELid5NJsA4se4KhXeV8ZU0PdRNMTFtWTxolORTs8=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "snap",
+        "packageName": "metamask-snaps-spacedev",
         "registry": "https://registry.npmjs.org/"
       }
     }

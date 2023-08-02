@@ -47,6 +47,7 @@ const Button = styled.button`
 
 const ButtonText = styled.span`
   margin-left: 1rem;
+  text-wrap: nowrap;
 `;
 
 const ConnectedContainer = styled.div`
@@ -147,14 +148,15 @@ export const ProtectButton = (props: ComponentProps<typeof Button>) => {
 };
 
 export const ButtonBase = (props: ComponentProps<typeof Button>) => {
+  console.log(props);
   return (
     <Button
       sx={
-        props.disabled
+        true
           ? {
-              backgroundColor: '#f3f3f3',
-              color: '#afafaf',
-              borderColor: '#f3f3f3',
+              backgroundColor: '#f3',
+              color: '#af',
+              borderColor: '#f3',
             }
           : {}
       }

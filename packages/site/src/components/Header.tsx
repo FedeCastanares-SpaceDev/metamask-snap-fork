@@ -75,11 +75,17 @@ export const Header = ({
         <img src={SpaceLogoImage} alt="Logo Spacedev" height={64} />
       </LogoWrapper>
       <RightContainer>
-        <ButtonBase onClick={() => sendHello()}>Hello</ButtonBase>
-        <ButtonBase onClick={() => cleanData()}>Clean data</ButtonBase>
-        <ButtonBase onClick={() => getAddresses()}>Get addresses</ButtonBase>
-        <ButtonBase onClick={() => saveAddress()}>Save address</ButtonBase>
-        <ButtonBase onClick={() => sendTransaction()}>Transfer</ButtonBase>
+        {state.installedSnap && (
+          <>
+            <ButtonBase onClick={() => sendHello()}>Hello</ButtonBase>
+            <ButtonBase onClick={() => cleanData()}>Clean data</ButtonBase>
+            <ButtonBase onClick={() => getAddresses()}>
+              Get addresses
+            </ButtonBase>
+            <ButtonBase onClick={() => saveAddress()}>Save address</ButtonBase>
+            <ButtonBase onClick={() => sendTransaction()}>Transfer</ButtonBase>
+          </>
+        )}
         <Toggle
           onToggle={handleToggleClick}
           defaultChecked={getThemePreference()}

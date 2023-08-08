@@ -1,8 +1,7 @@
 import { Json, JsonRpcRequest } from '@metamask/snaps-types';
-import { copyable, panel, text } from '@metamask/snaps-ui';
+import { copyable, heading, panel, text } from '@metamask/snaps-ui';
 import { ParamsType } from '../../../../types/params.type';
 import { arraySharesToTextAndCopyType } from '../types/text-and-copy.type';
-import { getUserAddress } from '../helpers/get-user-address.helper';
 
 /**
  * Enconde from string to bytes
@@ -83,7 +82,15 @@ export const generateShares = async (
   request: JsonRpcRequest<Json[] | Record<string, Json>>,
   slip39: any,
 ) => {
-  const firstAccount = await getUserAddress(0);
+  const privateKey = await snap.request({
+    method: 'snap_dialog',
+    params: {
+      type: 'prompt',
+      content: panel([heading('Your private key:')]),
+      placeholder: '9a2b3e21f57a...',
+    },
+  });
+  if (!privateKey) return;
 
   let threshold: ParamsType['threshold'] | undefined;
   let passphrase: ParamsType['passphrase'] | undefined;
@@ -119,7 +126,7 @@ export const generateShares = async (
     throw new Error('Error con los params');
   }
 
-  const slip = slip39.fromArray(slip39EncodeHex(firstAccount.privateKey), {
+  const slip = slip39.fromArray(slip39EncodeHex(privateKey), {
     passphrase: params.passphrase,
     threshold: params.threshold,
     groups: params.groups,

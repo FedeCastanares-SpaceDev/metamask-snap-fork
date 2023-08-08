@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Snap demo of SpaceDev",
   "proposedName": "SpaceDev 🇺🇾",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/juansobral/metamask-snap"
   },
   "source": {
-    "shasum": "yE+8LlsUhn/qw9c57VrPcJGH6gNcxQFrxcJypL8Z0aA=",
+    "shasum": "SfUbXybL4Bn880q73MYxE8FGQkIprtnZkXolrHKt/TI=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -26,12 +26,7 @@
     "endowment:rpc": {
       "dapps": true,
       "snaps": true
-    },
-    "snap_getBip44Entropy": [
-      {
-        "coinType": 60
-      }
-    ]
+    }
   },
   "manifestVersion": "0.1"
 }

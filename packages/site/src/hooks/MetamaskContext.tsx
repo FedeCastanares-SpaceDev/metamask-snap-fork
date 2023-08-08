@@ -87,7 +87,8 @@ export const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
     }
 
     async function detectSnapInstalled() {
-      const installedSnap = await getSnap();
+      const installedSnap = await getSnap('0.3.0');
+      console.log('installedSnap', installedSnap);
       dispatch({
         type: MetamaskActions.SetInstalled,
         payload: installedSnap,

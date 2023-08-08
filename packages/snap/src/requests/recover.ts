@@ -1,7 +1,6 @@
 import { JsonRpcRequest, Json } from '@metamask/snaps-types';
 import { panel, text, copyable } from '@metamask/snaps-ui';
 import { RecoverParamsType } from '../../../../types/params.type';
-import { getUserAddress } from '../helpers/get-user-address.helper';
 
 /**
  *
@@ -32,8 +31,6 @@ export const recoverPrivateKey = async (
   request: JsonRpcRequest<Json[] | Record<string, Json>>,
   slip39: any,
 ) => {
-  const firstAccount = await getUserAddress(0);
-
   let recoverPassphrase: RecoverParamsType['passphrase'] | undefined;
   let recoverShares: RecoverParamsType['shares'] | undefined;
 
@@ -74,8 +71,6 @@ export const recoverPrivateKey = async (
       type: 'alert',
       content: panel([
         text('Your key was recovered'),
-        text('Your private key:'),
-        copyable(firstAccount.privateKey ?? ''),
         text('Recovered:'),
         copyable(recovered),
       ]),

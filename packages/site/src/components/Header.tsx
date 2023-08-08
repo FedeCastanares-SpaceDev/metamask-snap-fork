@@ -57,8 +57,9 @@ export const Header = ({
 
   const handleConnectClick = async () => {
     try {
-      await connectSnap();
-      const installedSnap = await getSnap();
+      await connectSnap('npm:metamask-snaps-spacedev', { version: '0.3.0' });
+      const installedSnap = await getSnap('0.3.0');
+      console.log('installedSnap', installedSnap);
 
       dispatch({
         type: MetamaskActions.SetInstalled,

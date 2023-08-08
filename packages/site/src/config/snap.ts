@@ -4,3 +4,4 @@
  */
 export const defaultSnapOrigin =
   process.env.SNAP_ORIGIN ?? `npm:metamask-snaps-spacedev`;
+// process.env.SNAP_ORIGIN ?? `local:http://localhost:8080`;

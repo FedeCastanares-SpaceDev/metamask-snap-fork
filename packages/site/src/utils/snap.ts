@@ -94,7 +94,6 @@ export const protectPrivateKeyAction = async (params: ParamsType) => {
 };
 
 export const recoverAction = async (params: RecoverParamsType) => {
-  console.log(params);
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
